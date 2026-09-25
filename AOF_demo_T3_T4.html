@@ -1,0 +1,1876 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AOF · Demo Temas 3 y 4 · Manual interactivo</title>
+
+<!-- MathJax 3 -->
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']],
+    displayMath: [['$$', '$$'], ['\\[', '\\]']],
+    processEscapes: true
+  },
+  svg: { fontCache: 'global' },
+  options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script" async></script>
+
+<!-- Fonts: Fraunces (display serif) + Spline Sans (body) + IBM Plex Mono (numeric/mono) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..700&family=Spline+Sans:wght@300..700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   AOF · Manual interactivo
+   Estética: "libro mayor de finanzas" · pergamino cálido,
+   tinta verde-bosque, cobre bruñido, oro tenue.
+   ============================================================ */
+
+:root{
+  --bg:        #f1ebdc;
+  --bg-deep:   #e8e0cc;
+  --paper:     #fbf8f0;
+  --paper-2:   #f7f2e6;
+  --ink:       #1b2a27;
+  --ink-soft:  #3c4b46;
+  --muted:     #6f6553;
+
+  --forest:    #1d4e44;
+  --forest-2:  #2c6b5c;
+  --forest-3:  #54897b;
+
+  --copper:    #b25a2b;
+  --copper-2:  #cd7d49;
+  --copper-glow:#ecc79e;
+  --gold:      #bb8f3c;
+
+  --crimson:   #9c352f;
+  --crimson-2: #c2625b;
+  --ok:        #2c6b4f;
+  --ok-2:      #4f9070;
+
+  --line:      #d9cdb2;
+  --line-soft: #e6ddc8;
+
+  --r-sm: 7px;
+  --r:    13px;
+  --r-lg: 20px;
+
+  --shadow:    0 1px 2px rgba(40,30,15,.05), 0 8px 28px -16px rgba(40,30,15,.28);
+  --shadow-lg: 0 2px 4px rgba(40,30,15,.06), 0 30px 60px -30px rgba(40,30,15,.4);
+
+  --sans: 'Spline Sans', system-ui, sans-serif;
+  --serif: 'Fraunces', Georgia, serif;
+  --mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+
+*{ box-sizing:border-box; margin:0; padding:0; }
+
+html{ scroll-behavior:smooth; }
+
+body{
+  font-family:var(--sans);
+  background:var(--bg);
+  color:var(--ink);
+  line-height:1.62;
+  font-size:16px;
+  -webkit-font-smoothing:antialiased;
+  background-image:
+    radial-gradient(circle at 12% 8%, rgba(178,90,43,.05), transparent 40%),
+    radial-gradient(circle at 88% 92%, rgba(29,78,68,.06), transparent 45%);
+  background-attachment:fixed;
+}
+
+/* faint paper grain */
+body::before{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+  opacity:.4; mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");
+}
+
+/* ============== LAYOUT ============== */
+.app{ display:flex; min-height:100vh; position:relative; z-index:1; }
+
+/* --------- Sidebar --------- */
+.sidebar{
+  width:268px; flex-shrink:0;
+  background:linear-gradient(170deg, #163b34 0%, #12302a 100%);
+  color:#e9e2cf;
+  padding:0; position:sticky; top:0; height:100vh; overflow-y:auto;
+  border-right:1px solid #0d231f;
+  box-shadow:inset -10px 0 24px -20px rgba(0,0,0,.7);
+}
+.sidebar::-webkit-scrollbar{ width:8px; }
+.sidebar::-webkit-scrollbar-thumb{ background:rgba(255,255,255,.13); border-radius:4px; }
+
+.brand{
+  padding:26px 22px 20px; border-bottom:1px solid rgba(255,255,255,.09);
+  position:relative;
+}
+.brand .crest{
+  font-family:var(--mono); font-size:11px; letter-spacing:.28em;
+  text-transform:uppercase; color:var(--copper-glow); margin-bottom:10px;
+}
+.brand h1{
+  font-family:var(--serif); font-weight:600; font-size:26px; line-height:1.05;
+  color:#f4eede; letter-spacing:-.01em;
+}
+.brand h1 em{ font-style:italic; color:var(--copper-2); font-weight:500; }
+.brand .sub{ font-size:12px; color:#a9bdb5; margin-top:8px; letter-spacing:.02em; }
+
+.nav{ padding:14px 12px 40px; }
+.nav-section{
+  font-family:var(--mono); font-size:10px; letter-spacing:.22em; text-transform:uppercase;
+  color:#7f9a90; padding:18px 12px 8px;
+}
+.nav-item{
+  display:flex; align-items:center; gap:11px; width:100%;
+  background:none; border:none; cursor:pointer; text-align:left;
+  color:#cfd9cf; font-family:var(--sans); font-size:14px;
+  padding:8px 12px; border-radius:9px; transition:all .16s ease;
+  letter-spacing:.01em;
+}
+.nav-item:hover{ background:rgba(255,255,255,.07); color:#fff; }
+.nav-item.active{
+  background:linear-gradient(90deg, rgba(178,90,43,.26), rgba(178,90,43,.05));
+  color:#fff; box-shadow:inset 2px 0 0 var(--copper-2);
+}
+.nav-item .ic{
+  width:24px; height:24px; flex-shrink:0; display:grid; place-items:center;
+  font-family:var(--mono); font-size:11px; font-weight:600;
+  background:rgba(255,255,255,.08); border-radius:7px; color:var(--copper-glow);
+}
+.nav-item.active .ic{ background:var(--copper); color:#fff; }
+.nav-item .lbl{ flex:1; }
+
+/* --------- Main --------- */
+.main{ flex:1; min-width:0; padding:0; position:relative; }
+.topbar{
+  display:none; align-items:center; gap:12px;
+  padding:12px 18px; background:var(--paper); border-bottom:1px solid var(--line);
+  position:sticky; top:0; z-index:40;
+}
+.topbar h2{ font-family:var(--serif); font-size:18px; }
+.hamburger{
+  background:var(--forest); color:#fff; border:none; width:40px; height:40px;
+  border-radius:9px; font-size:19px; cursor:pointer;
+}
+.view{ display:none; padding:52px 56px 120px; max-width:1080px; margin:0 auto; animation:fade .4s ease; }
+.view.active{ display:block; }
+@keyframes fade{ from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:none; } }
+
+/* ============== TYPOGRAPHY ============== */
+.eyebrow{
+  font-family:var(--mono); font-size:11.5px; letter-spacing:.24em; text-transform:uppercase;
+  color:var(--copper); margin-bottom:14px;
+}
+h2.view-title{
+  font-family:var(--serif); font-weight:600; font-size:42px; line-height:1.04;
+  letter-spacing:-.02em; color:var(--ink); margin-bottom:8px;
+}
+h2.view-title em{ font-style:italic; color:var(--forest); }
+.view-lead{ font-size:18px; color:var(--ink-soft); max-width:64ch; margin-bottom:30px; }
+
+h3.sec{
+  font-family:var(--serif); font-weight:600; font-size:27px; color:var(--forest);
+  margin:46px 0 14px; letter-spacing:-.01em; scroll-margin-top:80px;
+  padding-bottom:8px; border-bottom:2px solid var(--line);
+}
+h4.sub{
+  font-family:var(--sans); font-weight:600; font-size:18px; color:var(--ink);
+  margin:26px 0 10px; letter-spacing:.01em;
+}
+.prose p{ margin:13px 0; color:var(--ink-soft); }
+.prose ul, .prose ol{ margin:12px 0 12px 24px; color:var(--ink-soft); }
+.prose li{ margin:6px 0; }
+.prose strong{ color:var(--ink); font-weight:600; }
+.prose em.term{ font-style:normal; font-weight:600; color:var(--copper); }
+.mq{ color:var(--forest); font-weight:600; }
+
+/* ============== CALLOUT BOXES ============== */
+.box{ border-radius:var(--r); padding:18px 20px; margin:20px 0; border:1px solid var(--line); position:relative; }
+.box .box-tag{
+  font-family:var(--mono); font-size:10.5px; letter-spacing:.18em; text-transform:uppercase;
+  font-weight:600; margin-bottom:7px; display:flex; align-items:center; gap:8px;
+}
+.box p{ margin:6px 0; }
+.box.intu{ background:linear-gradient(180deg,#eef4ee,#e8f0e8); border-color:#cadcc9; }
+.box.intu .box-tag{ color:var(--forest-2); }
+.box.key{ background:linear-gradient(180deg,#fbf1e4,#f8e9d6); border-color:var(--copper-glow); }
+.box.key .box-tag{ color:var(--copper); }
+.box.warn{ background:linear-gradient(180deg,#fbeceb,#f7e2e0); border-color:#e8bdb9; }
+.box.warn .box-tag{ color:var(--crimson); }
+.box.note{ background:var(--paper-2); border-color:var(--line); }
+.box.note .box-tag{ color:var(--muted); }
+
+/* ============== FORMULA ============== */
+.formula{
+  background:var(--paper); border:1px solid var(--line); border-left:4px solid var(--forest);
+  border-radius:var(--r-sm); padding:14px 20px; margin:18px 0; overflow-x:auto;
+  box-shadow:var(--shadow);
+}
+.formula .flabel{
+  font-family:var(--mono); font-size:10.5px; letter-spacing:.15em; text-transform:uppercase;
+  color:var(--copper); margin-bottom:4px;
+}
+.formula.accent{ border-left-color:var(--copper); }
+
+/* ============== HOME ============== */
+.hero{
+  background:linear-gradient(150deg,#fbf8f0 0%,#f3ecdc 100%);
+  border:1px solid var(--line); border-radius:var(--r-lg);
+  padding:46px 44px; margin-bottom:36px; position:relative; overflow:hidden;
+  box-shadow:var(--shadow-lg);
+}
+.hero::after{
+  content:""; position:absolute; right:-60px; top:-60px; width:280px; height:280px;
+  background:radial-gradient(circle,rgba(178,90,43,.14),transparent 70%); border-radius:50%;
+}
+.hero .eyebrow{ margin-bottom:18px; }
+.hero h2{ font-family:var(--serif); font-weight:600; font-size:50px; line-height:1; letter-spacing:-.03em; }
+.hero h2 em{ font-style:italic; color:var(--forest); }
+.hero p{ font-size:18px; color:var(--ink-soft); max-width:60ch; margin-top:18px; }
+.hero-stats{ display:flex; flex-wrap:wrap; gap:30px; margin-top:30px; }
+.hero-stats .stat .n{ font-family:var(--serif); font-size:34px; font-weight:600; color:var(--copper); line-height:1; }
+.hero-stats .stat .l{ font-family:var(--mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-top:4px; }
+
+.topic-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px; margin:22px 0; }
+.topic-card{
+  background:var(--paper); border:1px solid var(--line); border-radius:var(--r);
+  padding:22px 20px; cursor:pointer; transition:all .2s ease; position:relative; overflow:hidden;
+}
+.topic-card:hover{ transform:translateY(-4px); box-shadow:var(--shadow-lg); border-color:var(--copper-2); }
+.topic-card .tnum{
+  font-family:var(--serif); font-style:italic; font-size:15px; color:var(--copper); font-weight:600;
+}
+.topic-card h3{ font-family:var(--serif); font-size:21px; font-weight:600; color:var(--ink); margin:6px 0 8px; line-height:1.1; }
+.topic-card p{ font-size:13.5px; color:var(--muted); line-height:1.5; }
+.topic-card .bar{ position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--forest); }
+.topic-card:nth-child(odd) .bar{ background:var(--copper); }
+
+.howto{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; margin-top:18px; }
+.howto .card{ background:var(--paper-2); border:1px solid var(--line); border-radius:var(--r); padding:18px; }
+.howto .card .i{ width:34px; height:34px; border-radius:9px; background:var(--forest); color:#fff; display:grid; place-items:center; font-family:var(--serif); font-weight:600; margin-bottom:10px; }
+.howto .card h4{ font-size:15px; font-weight:600; margin-bottom:5px; }
+.howto .card p{ font-size:13px; color:var(--muted); }
+
+/* ============== TABLES ============== */
+.tbl-wrap{ overflow-x:auto; margin:18px 0; border:1px solid var(--line); border-radius:var(--r); }
+table.data{ width:100%; border-collapse:collapse; font-size:14px; background:var(--paper); }
+table.data th{
+  background:var(--forest); color:#f1ece0; font-weight:600; text-align:left; padding:11px 14px;
+  font-size:12.5px; letter-spacing:.03em; position:sticky; top:0;
+}
+table.data td{ padding:10px 14px; border-top:1px solid var(--line-soft); color:var(--ink-soft); vertical-align:top; }
+table.data tr:nth-child(even) td{ background:var(--paper-2); }
+table.data td.mono, table.data th.mono{ font-family:var(--mono); font-size:13px; }
+
+/* ============== EXERCISES ============== */
+.exercise{ background:var(--paper); border:1px solid var(--line); border-radius:var(--r); margin:20px 0; overflow:hidden; box-shadow:var(--shadow); }
+.exercise .ex-head{ padding:16px 20px; background:var(--paper-2); border-bottom:1px solid var(--line); display:flex; align-items:flex-start; gap:12px; }
+.ex-badge{ font-family:var(--mono); font-size:10.5px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; padding:4px 9px; border-radius:20px; flex-shrink:0; }
+.ex-badge.t{ background:var(--forest); color:#fff; }
+.ex-head .ex-title{ font-weight:600; color:var(--ink); font-size:15.5px; }
+.ex-head .ex-meta{ font-family:var(--mono); font-size:11px; color:var(--muted); margin-top:2px; }
+.exercise .ex-body{ padding:18px 20px; }
+.exercise .ex-statement{ color:var(--ink-soft); }
+.btn-solve{
+  margin-top:14px; background:var(--forest); color:#fff; border:none; padding:9px 18px;
+  border-radius:8px; font-family:var(--sans); font-size:13.5px; font-weight:600; cursor:pointer;
+  transition:all .16s; letter-spacing:.02em;
+}
+.btn-solve:hover{ background:var(--forest-2); }
+.solution{ display:none; margin-top:16px; border-top:1px dashed var(--line); padding-top:16px; }
+.solution.show{ display:block; animation:fade .3s ease; }
+.step{ display:flex; gap:13px; margin:13px 0; }
+.step .sn{ flex-shrink:0; width:26px; height:26px; border-radius:50%; background:var(--copper); color:#fff; display:grid; place-items:center; font-family:var(--mono); font-size:12px; font-weight:600; }
+.step .sc{ flex:1; }
+.step .sc .st-title{ font-weight:600; color:var(--ink); font-size:14px; margin-bottom:2px; }
+.step .sc p{ font-size:14px; color:var(--ink-soft); margin:3px 0; }
+.ans-final{ background:#eef4ee; border:1px solid #cadcc9; border-radius:8px; padding:11px 15px; margin-top:14px; font-weight:600; color:var(--forest); }
+.ans-final .lab{ font-family:var(--mono); font-size:10px; letter-spacing:.15em; text-transform:uppercase; color:var(--forest-2); display:block; margin-bottom:2px; }
+
+/* interactive numeric */
+.numcheck{ display:flex; gap:10px; align-items:center; margin-top:14px; flex-wrap:wrap; }
+.numcheck input{ font-family:var(--mono); font-size:15px; padding:9px 13px; border:1.5px solid var(--line); border-radius:8px; width:170px; background:var(--paper); color:var(--ink); }
+.numcheck input:focus{ outline:none; border-color:var(--forest); }
+.numcheck .unit{ font-family:var(--mono); font-size:13px; color:var(--muted); }
+.btn-check{ background:var(--copper); color:#fff; border:none; padding:9px 16px; border-radius:8px; font-weight:600; cursor:pointer; font-size:13.5px; }
+.btn-check:hover{ background:var(--copper-2); }
+.feedback{ margin-top:11px; padding:10px 14px; border-radius:8px; font-size:14px; display:none; }
+.feedback.show{ display:block; animation:fade .25s; }
+.feedback.right{ background:#e7f1ea; border:1px solid #bcd9c6; color:var(--ok); }
+.feedback.wrong{ background:#fbe9e7; border:1px solid #ecc4bf; color:var(--crimson); }
+
+/* ============== FLASHCARDS ============== */
+.deck-tabs{ display:flex; flex-wrap:wrap; gap:8px; margin:18px 0 24px; }
+.deck-tab{ background:var(--paper); border:1px solid var(--line); padding:7px 15px; border-radius:20px; cursor:pointer; font-size:13px; font-weight:500; color:var(--ink-soft); transition:all .16s; }
+.deck-tab:hover{ border-color:var(--copper-2); }
+.deck-tab.active{ background:var(--forest); color:#fff; border-color:var(--forest); }
+.fc-stage{ display:flex; flex-direction:column; align-items:center; gap:18px; }
+.flashcard{ width:100%; max-width:560px; height:300px; perspective:1600px; cursor:pointer; }
+.fc-inner{ position:relative; width:100%; height:100%; transition:transform .6s cubic-bezier(.4,.2,.2,1); transform-style:preserve-3d; }
+.flashcard.flipped .fc-inner{ transform:rotateY(180deg); }
+.fc-face{ position:absolute; inset:0; backface-visibility:hidden; border-radius:var(--r-lg); padding:34px; display:flex; flex-direction:column; justify-content:center; box-shadow:var(--shadow-lg); }
+.fc-front{ background:linear-gradient(155deg,#fbf8f0,#f2ebdb); border:1px solid var(--line); }
+.fc-back{ background:linear-gradient(155deg,#1d4e44,#15392f); color:#eef3ee; transform:rotateY(180deg); border:1px solid #0d231f; }
+.fc-face .fc-kind{ font-family:var(--mono); font-size:10.5px; letter-spacing:.2em; text-transform:uppercase; margin-bottom:14px; }
+.fc-front .fc-kind{ color:var(--copper); }
+.fc-back .fc-kind{ color:var(--copper-glow); }
+.fc-q{ font-family:var(--serif); font-size:25px; font-weight:500; line-height:1.2; color:var(--ink); }
+.fc-a{ font-size:16px; line-height:1.55; }
+.fc-hint{ position:absolute; bottom:16px; right:22px; font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; opacity:.5; }
+.fc-controls{ display:flex; align-items:center; gap:16px; }
+.fc-btn{ background:var(--paper); border:1px solid var(--line); width:46px; height:46px; border-radius:50%; cursor:pointer; font-size:18px; color:var(--forest); transition:all .16s; }
+.fc-btn:hover{ background:var(--forest); color:#fff; }
+.fc-count{ font-family:var(--mono); font-size:13px; color:var(--muted); min-width:70px; text-align:center; }
+
+/* ============== QUIZ ============== */
+.quiz-config{ background:var(--paper); border:1px solid var(--line); border-radius:var(--r); padding:24px; margin-bottom:24px; box-shadow:var(--shadow); }
+.qc-row{ margin-bottom:20px; }
+.qc-row .qc-label{ font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--copper); margin-bottom:10px; }
+.chip-set{ display:flex; flex-wrap:wrap; gap:8px; }
+.chip{ background:var(--paper-2); border:1.5px solid var(--line); padding:6px 14px; border-radius:20px; cursor:pointer; font-size:13px; color:var(--ink-soft); transition:all .14s; user-select:none; }
+.chip:hover{ border-color:var(--copper-2); }
+.chip.on{ background:var(--forest); color:#fff; border-color:var(--forest); }
+.chip.diff.on.facil{ background:var(--ok); border-color:var(--ok); }
+.chip.diff.on.media{ background:var(--gold); border-color:var(--gold); }
+.chip.diff.on.dificil{ background:var(--crimson); border-color:var(--crimson); }
+.qc-foot{ display:flex; align-items:center; gap:16px; flex-wrap:wrap; margin-top:8px; }
+.qc-foot label{ font-size:14px; color:var(--ink-soft); display:flex; align-items:center; gap:8px; }
+.qc-foot input[type=number]{ width:70px; font-family:var(--mono); padding:7px 10px; border:1.5px solid var(--line); border-radius:7px; background:var(--paper); }
+.btn-start{ background:var(--copper); color:#fff; border:none; padding:12px 28px; border-radius:9px; font-weight:600; font-size:15px; cursor:pointer; transition:all .16s; letter-spacing:.02em; }
+.btn-start:hover{ background:var(--copper-2); transform:translateY(-1px); }
+
+.quiz-prog{ display:flex; align-items:center; gap:14px; margin-bottom:18px; }
+.prog-bar{ flex:1; height:9px; background:var(--bg-deep); border-radius:6px; overflow:hidden; }
+.prog-fill{ height:100%; background:linear-gradient(90deg,var(--forest),var(--forest-3)); transition:width .3s; border-radius:6px; }
+.prog-txt{ font-family:var(--mono); font-size:13px; color:var(--muted); }
+.q-meta{ display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+.q-pill{ font-family:var(--mono); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; padding:3px 10px; border-radius:14px; font-weight:600; }
+.q-pill.tema{ background:var(--forest); color:#fff; }
+.q-pill.facil{ background:#e2efe6; color:var(--ok); border:1px solid #bcd9c6; }
+.q-pill.media{ background:#f7eed5; color:#8a6a1e; border:1px solid #e3cf99; }
+.q-pill.dificil{ background:#fae3e1; color:var(--crimson); border:1px solid #ecc4bf; }
+.q-text{ font-family:var(--serif); font-size:23px; font-weight:500; line-height:1.3; color:var(--ink); margin-bottom:20px; }
+.options{ display:flex; flex-direction:column; gap:11px; }
+.option{ background:var(--paper); border:1.5px solid var(--line); border-radius:var(--r-sm); padding:14px 18px; cursor:pointer; transition:all .15s; display:flex; gap:13px; align-items:flex-start; }
+.option:hover{ border-color:var(--forest-3); background:var(--paper-2); }
+.option .opt-key{ font-family:var(--mono); font-weight:600; color:var(--copper); flex-shrink:0; }
+.option.correct{ background:#e7f1ea; border-color:var(--ok); }
+.option.correct .opt-key{ color:var(--ok); }
+.option.wrong{ background:#fbe9e7; border-color:var(--crimson); }
+.option.wrong .opt-key{ color:var(--crimson); }
+.option.disabled{ cursor:default; pointer-events:none; }
+.option.dim{ opacity:.55; }
+.q-explain{ display:none; margin-top:18px; border-radius:var(--r); padding:18px 20px; background:var(--paper-2); border:1px solid var(--line); }
+.q-explain.show{ display:block; animation:fade .3s; }
+.q-explain .qe-tag{ font-family:var(--mono); font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; font-weight:600; margin-bottom:7px; }
+.q-explain.ok .qe-tag{ color:var(--ok); }
+.q-explain.no .qe-tag{ color:var(--crimson); }
+.q-explain p{ font-size:14.5px; color:var(--ink-soft); }
+.qe-theory{ margin-top:12px; }
+.btn-theory{ background:none; border:1.5px solid var(--copper); color:var(--copper); padding:7px 15px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; transition:all .15s; }
+.btn-theory:hover{ background:var(--copper); color:#fff; }
+.quiz-nav{ display:flex; justify-content:space-between; gap:12px; margin-top:24px; }
+.btn-next{ background:var(--forest); color:#fff; border:none; padding:11px 24px; border-radius:9px; font-weight:600; cursor:pointer; font-size:14.5px; }
+.btn-next:hover{ background:var(--forest-2); }
+.btn-next:disabled{ opacity:.4; cursor:not-allowed; }
+.quiz-results{ text-align:center; padding:30px 0; }
+.score-ring{ font-family:var(--serif); font-size:64px; font-weight:600; color:var(--forest); }
+.score-sub{ color:var(--muted); font-size:16px; margin-bottom:24px; }
+.result-breakdown{ text-align:left; max-width:560px; margin:0 auto; }
+
+/* ============== GLOSSARY ============== */
+.gloss-search{ width:100%; padding:14px 18px; font-size:16px; border:1.5px solid var(--line); border-radius:var(--r); background:var(--paper); color:var(--ink); margin-bottom:8px; font-family:var(--sans); }
+.gloss-search:focus{ outline:none; border-color:var(--forest); }
+.gloss-count{ font-family:var(--mono); font-size:12px; color:var(--muted); margin-bottom:18px; }
+.gloss-item{ background:var(--paper); border:1px solid var(--line); border-radius:var(--r); padding:16px 20px; margin-bottom:11px; transition:all .15s; }
+.gloss-item:hover{ border-color:var(--copper-2); box-shadow:var(--shadow); }
+.gloss-term{ font-family:var(--serif); font-size:18px; font-weight:600; color:var(--forest); display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.gloss-tema{ font-family:var(--mono); font-size:10px; letter-spacing:.08em; text-transform:uppercase; background:var(--paper-2); border:1px solid var(--line); padding:2px 8px; border-radius:12px; color:var(--muted); }
+.gloss-def{ font-size:14.5px; color:var(--ink-soft); margin-top:6px; }
+
+/* ============== CONCEPT MAP ============== */
+.map-wrap{ background:var(--paper); border:1px solid var(--line); border-radius:var(--r); padding:10px; margin:20px 0; overflow-x:auto; box-shadow:var(--shadow); }
+.map-wrap svg{ display:block; width:100%; height:auto; min-width:640px; }
+.map-tabs{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+
+/* compare grid */
+.cmp-grid{ display:grid; grid-template-columns:1fr 1fr; gap:0; border:1px solid var(--line); border-radius:var(--r); overflow:hidden; margin:18px 0; }
+.cmp-col{ padding:20px; }
+.cmp-col:first-child{ border-right:1px solid var(--line); background:var(--paper); }
+.cmp-col:last-child{ background:var(--paper-2); }
+.cmp-col h4{ font-family:var(--serif); font-size:19px; color:var(--forest); margin-bottom:10px; }
+.cmp-col:last-child h4{ color:var(--copper); }
+.cmp-col ul{ margin-left:18px; }
+.cmp-col li{ font-size:14px; color:var(--ink-soft); margin:7px 0; }
+
+/* process flow */
+.flow{ display:flex; flex-direction:column; gap:0; margin:20px 0; }
+.flow-step{ display:flex; gap:16px; }
+.flow-step .fmark{ display:flex; flex-direction:column; align-items:center; }
+.flow-step .fdot{ width:38px; height:38px; border-radius:50%; background:var(--forest); color:#fff; display:grid; place-items:center; font-family:var(--mono); font-weight:600; flex-shrink:0; z-index:2; }
+.flow-step .fline{ width:2px; flex:1; background:var(--line); margin:2px 0; }
+.flow-step:last-child .fline{ display:none; }
+.flow-step .fbody{ padding-bottom:24px; flex:1; }
+.flow-step .fbody h4{ font-size:16px; font-weight:600; color:var(--ink); margin-bottom:3px; }
+.flow-step .fbody p{ font-size:14px; color:var(--ink-soft); }
+
+/* badge inline */
+.ib{ display:inline-block; font-family:var(--mono); font-size:11px; padding:1px 7px; border-radius:5px; background:var(--paper-2); border:1px solid var(--line); color:var(--forest); }
+
+.footer-note{ margin-top:60px; padding-top:24px; border-top:1px solid var(--line); font-size:13px; color:var(--muted); }
+
+/* ============== RESPONSIVE ============== */
+@media (max-width:900px){
+  .sidebar{ position:fixed; left:0; top:0; z-index:100; transform:translateX(-100%); transition:transform .28s; }
+  .sidebar.open{ transform:none; box-shadow:var(--shadow-lg); }
+  .topbar{ display:flex; }
+  .view{ padding:28px 20px 100px; }
+  .hero{ padding:30px 24px; }
+  .hero h2{ font-size:34px; }
+  h2.view-title{ font-size:31px; }
+  .cmp-grid{ grid-template-columns:1fr; }
+  .cmp-col:first-child{ border-right:none; border-bottom:1px solid var(--line); }
+  .scrim{ display:none; position:fixed; inset:0; background:rgba(15,30,25,.5); z-index:90; }
+  .scrim.show{ display:block; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <div class="crest">UAH · 2º ADE · Pilar Requena</div>
+    <h1>Operaciones <em>Financieras</em></h1>
+    <div class="sub">Demo · Temas 3 y 4</div>
+  </div>
+  <nav class="nav" id="nav">
+    <div class="nav-section">Inicio</div>
+    <button class="nav-item active" data-view="home"><span class="ic">⌂</span><span class="lbl">Portada</span></button>
+    <button class="nav-item" data-view="fundamentos"><span class="ic">∑</span><span class="lbl">Conceptos fundamentales</span></button>
+
+    <div class="nav-section">Temas de la demo</div>
+    <button class="nav-item" data-view="t3"><span class="ic">III</span><span class="lbl">Rentas financieras</span></button>
+    <button class="nav-item" data-view="t4"><span class="ic">IV</span><span class="lbl">Operaciones financieras</span></button>
+
+    <div class="nav-section">Estudio</div>
+    <button class="nav-item" data-view="mapa"><span class="ic">⬡</span><span class="lbl">Mapas conceptuales</span></button>
+    <button class="nav-item" data-view="ideas"><span class="ic">★</span><span class="lbl">Ideas clave de examen</span></button>
+    <button class="nav-item" data-view="diferencias"><span class="ic">⇄</span><span class="lbl">Diferencias y comparativas</span></button>
+    <button class="nav-item" data-view="procesos"><span class="ic">→</span><span class="lbl">Cómo leer los procesos</span></button>
+    <button class="nav-item" data-view="glosario"><span class="ic">A</span><span class="lbl">Glosario</span></button>
+    <button class="nav-item" data-view="formulario"><span class="ic">ƒ</span><span class="lbl">Formulario</span></button>
+
+    <div class="nav-section">Práctica</div>
+    <button class="nav-item" data-view="ejercicios"><span class="ic">✎</span><span class="lbl">Ejercicios resueltos</span></button>
+    <button class="nav-item" data-view="flashcards"><span class="ic">⇆</span><span class="lbl">Flashcards</span></button>
+    <button class="nav-item" data-view="quiz"><span class="ic">?</span><span class="lbl">Quiz · Examen</span></button>
+  </nav>
+</aside>
+<div class="scrim" id="scrim"></div>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <button class="hamburger" id="hamburger">☰</button>
+    <h2 id="topbar-title">AOF</h2>
+  </div>
+  <div id="views">
+<!-- ============================== HOME ============================== -->
+<section class="view active" id="view-home">
+  <div class="hero">
+    <div class="eyebrow">Demo · Manual interactivo · Universidad de Alcalá · Grado en ADE</div>
+    <h2>Análisis de las <em>Operaciones Financieras</em></h2>
+    <p>Versión demo con los Temas 3 y 4: rentas financieras y operaciones financieras. Teoría fiel a los apuntes, ejercicios de clase resueltos paso a paso, flashcards y un quiz configurable para autoevaluarte.</p>
+    <div class="hero-stats">
+      <div class="stat"><div class="n">2</div><div class="l">Temas</div></div>
+      <div class="stat"><div class="n">21</div><div class="l">Fórmulas</div></div>
+      <div class="stat"><div class="n">19</div><div class="l">Ejercicios resueltos</div></div>
+      <div class="stat"><div class="n">47</div><div class="l">Preguntas de quiz</div></div>
+      <div class="stat"><div class="n">33</div><div class="l">Flashcards</div></div>
+    </div>
+  </div>
+
+  <h3 class="sec">El programa de la demo</h3>
+  <div class="prose"><p>El Tema 3 te da la herramienta (valorar muchos capitales de golpe) y el Tema 4 la usa (equilibrar prestación y contraprestación, medir el saldo vivo y el coste o rentabilidad). Pulsa una tarjeta para ir al tema.</p></div>
+  <div class="topic-grid">
+    <div class="topic-card" data-goto="t3"><div class="bar"></div><div class="tnum">Tema III</div><h3>Rentas financieras</h3><p>Elementos y clasificación. Rentas constantes (los 4 casos), geométricas, perpetuas y fraccionadas. Pospagables y prepagables.</p></div>
+    <div class="topic-card" data-goto="t4"><div class="bar"></div><div class="tnum">Tema IV</div><h3>Operaciones financieras</h3><p>Elementos y clasificación. Principio de equivalencia. Reserva matemática (retrospectiva, prospectiva, recurrente). TIR, características comerciales, TAE.</p></div>
+    <div class="topic-card" data-goto="quiz"><div class="bar"></div><div class="tnum">★</div><h3>Examínate</h3><p>Quiz por tema y dificultad, con corrección a color, explicación y enlace a la teoría de cada pregunta.</p></div>
+  </div>
+
+  <h3 class="sec">Cómo usar este manual</h3>
+  <div class="howto">
+    <div class="card"><div class="i">1</div><h4>Lee con calma</h4><p>Cada tema va de la intuición al formalismo. Las cajas <em>Idea clave</em> y <em>Ojo en el examen</em> resaltan lo esencial.</p></div>
+    <div class="card"><div class="i">2</div><h4>Trabaja los ejercicios</h4><p>Ejercicios de clase resueltos paso a paso; en los interactivos introduces tu resultado y lo compruebas.</p></div>
+    <div class="card"><div class="i">3</div><h4>Repasa con flashcards</h4><p>Voltea las tarjetas para fijar definiciones y fórmulas, por tema o con la baraja completa.</p></div>
+    <div class="card"><div class="i">4</div><h4>Examínate</h4><p>Configura el quiz, aleatoriza y consulta la teoría de cada fallo.</p></div>
+  </div>
+  <div class="footer-note">Fuente: apuntes de la asignatura (Prof. Pilar Requena, Dpto. de Economía y Dirección de Empresas, UAH) y ejercicios de clase. Bibliografía: Navarro Arribas, E. (2019), <em>Matemáticas de las operaciones financieras</em>, Pirámide.</div>
+</section>
+
+<!-- ============================== FUNDAMENTOS ============================== -->
+<section class="view" id="view-fundamentos">
+  <div class="eyebrow">Antes de empezar</div>
+  <h2 class="view-title">Conceptos <em>fundamentales</em></h2>
+  <p class="view-lead">El vocabulario y las cuatro ideas transversales que sostienen toda la asignatura. Si dominas esto, el resto encaja.</p>
+
+  <h3 class="sec">1 · El capital financiero</h3>
+  <div class="prose">
+    <p>Un <em class="term">capital financiero</em> no es solo una cantidad de dinero: es un par <span class="mq">(cuantía, vencimiento)</span>. Cien euros hoy y cien euros dentro de un año son <strong>capitales distintos</strong>, porque tienen distinto vencimiento. Esta es la idea que rompe la intuición aritmética del estudiante: en finanzas <strong>no se pueden sumar capitales situados en fechas distintas</strong> sin antes moverlos a una misma fecha.</p>
+  </div>
+  <div class="box intu"><div class="box-tag">◆ Intuición</div><p>El dinero tiene "valor temporal": disponer de él antes vale más, porque puedes invertirlo y generar intereses. Mover un capital en el tiempo significa multiplicarlo por un factor (capitalizar hacia el futuro) o dividirlo (descontar hacia el presente).</p></div>
+
+  <h3 class="sec">2 · Interés vs. tipo de interés</h3>
+  <div class="prose">
+    <p>Conviene no confundirlos, porque el examen lo aprovecha:</p>
+    <ul>
+      <li>El <em class="term">interés</em> ($I$) es el precio por disponer de un capital ajeno durante un tiempo. Se mide en <strong>unidades monetarias</strong> (euros).</li>
+      <li>El <em class="term">tipo de interés</em> ($i$) es ese precio en <strong>términos relativos</strong>: por unidad de capital y unidad de tiempo. Es un porcentaje y <strong>siempre va referido a una unidad temporal</strong> (anual, mensual...).</li>
+    </ul>
+  </div>
+  <div class="formula"><div class="flabel">Relación básica de toda operación</div>$$C_n = C + I$$</div>
+  <div class="prose"><p>Donde $C$ es el capital inicial, $C_n$ el capital final o <strong>montante</strong>, e $I$ el interés generado. Todo el curso es, en el fondo, calcular uno de estos tres elementos conocidos los otros.</p></div>
+
+  <h3 class="sec">3 · Las dos operaciones elementales: capitalizar y descontar</h3>
+  <div class="cmp-grid">
+    <div class="cmp-col">
+      <h4>Capitalizar (→ futuro)</h4>
+      <ul>
+        <li>Llevar un capital <strong>hacia adelante</strong> en el tiempo.</li>
+        <li>Se multiplica por el <strong>factor de acumulación</strong> $A(t,s)\ge 1$.</li>
+        <li>De $C$ hoy obtienes más: $C_n = C\cdot A$.</li>
+      </ul>
+    </div>
+    <div class="cmp-col">
+      <h4>Descontar (→ presente)</h4>
+      <ul>
+        <li>Traer un capital futuro <strong>al presente</strong>.</li>
+        <li>Se multiplica por el <strong>factor de descuento</strong> $v(t)\le 1$.</li>
+        <li>De $C_n$ futuro obtienes menos hoy: $C = C_n\cdot v$.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="box key"><div class="box-tag">★ Idea clave</div><p>Capitalizar y descontar son operaciones <strong>inversas</strong>: el factor de descuento es el inverso del de acumulación, $v(t)=1/A(t)$. Toda la asignatura consiste en mover capitales con estos dos factores y luego igualar.</p></div>
+
+  <h3 class="sec">4 · El principio de equivalencia (la columna vertebral)</h3>
+  <div class="prose">
+    <p>Es <strong>el</strong> principio del curso. Dice que, fijado un criterio de valoración, el valor financiero de lo que entrega una parte (la <em class="term">prestación</em>) y el de lo que devuelve la otra (la <em class="term">contraprestación</em>) deben <strong>coincidir en cualquier momento del tiempo</strong>. De ahí salen todas las ecuaciones: para hallar un capital desconocido, un plazo, un tanto o la TIR, planteas la equivalencia en una fecha cómoda y despejas.</p>
+  </div>
+  <div class="box warn"><div class="box-tag">▲ Ojo en el examen</div><p>El error nº 1 es valorar capitales en fechas distintas y sumarlos directamente. <strong>Siempre</strong> elige una fecha de valoración (origen, final o un punto intermedio), lleva todos los capitales a ella, y entonces iguala o suma.</p></div>
+
+  <h3 class="sec">Notación que usaremos</h3>
+  <div class="tbl-wrap"><table class="data">
+    <tr><th>Símbolo</th><th>Significado</th></tr>
+    <tr><td class="mono">$C,\ C_0$</td><td>Capital inicial / nominal de la operación</td></tr>
+    <tr><td class="mono">$C_n,\ M$</td><td>Montante o capital final</td></tr>
+    <tr><td class="mono">$I$</td><td>Interés (en unidades monetarias)</td></tr>
+    <tr><td class="mono">$i$</td><td>Tipo de interés efectivo anual</td></tr>
+    <tr><td class="mono">$i^{(m)},\ i_m$</td><td>Tipo efectivo subperiodal (frecuencia $m$)</td></tr>
+    <tr><td class="mono">$j_{(m)}$</td><td>Tipo nominal anual capitalizable $m$ veces/año</td></tr>
+    <tr><td class="mono">$i(t)$</td><td>Tipo efectivo del periodo que empieza en $t$ (dinámico)</td></tr>
+    <tr><td class="mono">$A(t,s),\ v(t,s)$</td><td>Factores de acumulación y de descuento</td></tr>
+    <tr><td class="mono">$a_{\overline{n}\rceil i},\ s_{\overline{n}\rceil i}$</td><td>Valor actual / final de renta unitaria pospagable</td></tr>
+    <tr><td class="mono">$\ddot a_{\overline{n}\rceil i},\ \ddot s_{\overline{n}\rceil i}$</td><td>Idem prepagable</td></tr>
+    <tr><td class="mono">$k$ o TIR</td><td>Tasa interna de rentabilidad</td></tr>
+  </table></div>
+</section>
+<!-- ============================== TEMA 3 ============================== -->
+<section class="view" id="view-t3">
+  <div class="eyebrow">Tema III</div>
+  <h2 class="view-title">Rentas <em>financieras</em></h2>
+  <p class="view-lead">Una renta es un conjunto de capitales con vencimientos periódicos. Aprender a valorarla —llevarla toda a una fecha— es la herramienta central que usará el Tema 4 (y el resto de la asignatura).</p>
+
+  <h3 class="sec" id="t3-concepto">3.1 · Concepto y clasificación</h3>
+  <div class="box intu"><div class="box-tag">◆ Intuición</div><p>Pagar una hipoteca, cobrar una pensión, recibir cupones de un bono: todo son rentas. En vez de descontar capital a capital, las fórmulas de renta nos dan el valor de <strong>todos</strong> los términos de golpe. Las dos magnitudes que buscamos son el <strong>valor actual</strong> $V_0$ (en el origen) y el <strong>valor final</strong> $V_n$ (al término).</p></div>
+  <div class="prose"><p>Clasificación según el momento del pago dentro de cada periodo:</p>
+  <ul>
+    <li><strong>Pospagable (vencida):</strong> cada término vence al <strong>final</strong> de su periodo (en $1, 2, \dots, n$).</li>
+    <li><strong>Prepagable (anticipada):</strong> cada término vence al <strong>principio</strong> del periodo (en $0, 1, \dots, n-1$).</li>
+  </ul>
+  <p>Según la cuantía: <strong>constante</strong>, <strong>variable en progresión geométrica</strong>, <strong>perpetua</strong> y <strong>fraccionada</strong>.</p></div>
+  <h4 class="sub">Elementos de una renta</h4>
+  <div class="tbl-wrap"><table class="data">
+    <tr><th style="width:26%">Elemento</th><th>Definición</th></tr>
+    <tr><td><strong>Términos</strong></td><td>Los capitales que forman la renta. Cada uno está asociado a un periodo (mensual, trimestral, anual…).</td></tr>
+    <tr><td><strong>Origen</strong></td><td>Extremo <strong>inferior</strong> del primer periodo de la renta.</td></tr>
+    <tr><td><strong>Final</strong></td><td>Extremo <strong>superior</strong> del último periodo.</td></tr>
+    <tr><td><strong>Duración</strong></td><td>Final − origen.</td></tr>
+    <tr><td><strong>Valor actual / final</strong></td><td>Valor financiero de la renta en el <strong>origen</strong> / en el <strong>final</strong>: suma de los términos descontados o acumulados a esa fecha.</td></tr>
+  </table></div>
+  <h4 class="sub">Criterios de clasificación</h4>
+  <div class="tbl-wrap"><table class="data">
+    <tr><th style="width:26%">Criterio</th><th>Tipos</th></tr>
+    <tr><td>Número de capitales</td><td><strong>Temporal</strong> (finitos) · <strong>Perpetua</strong> (infinitos: tiene origen pero no final)</td></tr>
+    <tr><td>Amplitud de los periodos</td><td><strong>Discreta</strong> (anual, semestral, trimestral, mensual, diaria) · <strong>Continua</strong> (amplitud infinitesimal)</td></tr>
+    <tr><td>Cuantía de los términos</td><td><strong>Constante</strong> · <strong>Variable</strong> (casos particulares: progresión <strong>geométrica</strong> y <strong>aritmética</strong>)</td></tr>
+    <tr><td>Vencimiento dentro del periodo</td><td><strong>Pospagable</strong> (al final) · <strong>Prepagable</strong> (al principio)</td></tr>
+  </table></div>
+  <div class="box key"><div class="box-tag">★ Idea clave de los apuntes</div><p>Pospagable o prepagable es una <strong>interpretación subjetiva</strong> del mismo flujo: cambian el origen y el final, pero el <strong>valor de la renta en una fecha concreta es el mismo</strong>. Lo que importa es dónde valoras.</p></div>
+  <div class="exercise">
+    <div class="ex-head"><span class="ex-badge t">T3</span><div><div class="ex-title">Ejemplo de los apuntes · la misma renta valorada en tres sitios</div><div class="ex-meta">5 términos anuales de 100 € al 3%</div></div></div>
+    <div class="ex-body">
+      <div class="ex-statement"><p>Renta de 5 términos de 100 € al 3% efectivo anual. Obtén el valor actual y final pospagable, y el valor actual prepagable.</p></div>
+      <button class="btn-solve">Ver solución paso a paso</button>
+      <div class="solution">
+        <div class="step"><div class="sn">1</div><div class="sc"><div class="st-title">Valor actual pospagable</div><p>$V_0=100\,a_{\overline{5}\rceil 0{,}03}=100\cdot4{,}579707=457{,}97$ €.</p></div></div>
+        <div class="step"><div class="sn">2</div><div class="sc"><div class="st-title">Valor final pospagable</div><p>$V_5=100\,s_{\overline{5}\rceil 0{,}03}=100\cdot5{,}309136=530{,}91$ €. Comprobación: $457{,}97\cdot1{,}03^{5}=530{,}91$.</p></div></div>
+        <div class="step"><div class="sn">3</div><div class="sc"><div class="st-title">Valor actual prepagable</div><p>$100\,\ddot a_{\overline{5}\rceil 0{,}03}=100\cdot4{,}717098=471{,}71$ € $=457{,}97\cdot1{,}03$.</p></div></div>
+        <div class="ans-final"><span class="lab">Resultado</span>457,97 € · 530,91 € · 471,71 € — misma renta, fechas distintas</div>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="sec" id="t3-constante">3.2 · Valoración de rentas constantes</h3>
+  <div class="prose"><p>El símbolo clave es $a_{\overline{n}\rceil i}$: el <strong>valor actual de una renta unitaria</strong> (términos de 1 €), temporal $n$ periodos, pospagable, al tipo efectivo constante $i$.</p></div>
+  <div class="formula"><div class="flabel">Valor actual · renta constante pospagable</div>$$a_{\overline{n}\rceil i} = \frac{1-(1+i)^{-n}}{i} \qquad\Longrightarrow\qquad V_0 = C\cdot a_{\overline{n}\rceil i}$$</div>
+  <div class="formula"><div class="flabel">Valor final · renta constante pospagable</div>$$s_{\overline{n}\rceil i} = \frac{(1+i)^{n}-1}{i} \qquad\Longrightarrow\qquad V_n = C\cdot s_{\overline{n}\rceil i}$$</div>
+  <div class="box key"><div class="box-tag">★ Idea clave · relación oro</div><p>Valor actual y valor final están separados $n$ periodos de capitalización compuesta:</p><p style="margin-top:6px">$$s_{\overline{n}\rceil i} = a_{\overline{n}\rceil i}\,(1+i)^{n}\qquad;\qquad V_n = V_0\,(1+i)^{n}$$</p><p>Calcula uno y obtienes el otro multiplicando o dividiendo por $(1+i)^n$. No hace falta recalcular desde cero.</p></div>
+  <div class="prose"><p>Para la versión <strong>prepagable</strong>, basta capitalizar un periodo (el dinero entra un periodo antes, luego vale $(1+i)$ veces más):</p></div>
+  <div class="formula accent"><div class="flabel">Renta constante prepagable</div>$$\ddot a_{\overline{n}\rceil i} = a_{\overline{n}\rceil i}\,(1+i) = \frac{(1+i)-(1+i)^{-n+1}}{i}\qquad;\qquad \ddot s_{\overline{n}\rceil i} = s_{\overline{n}\rceil i}\,(1+i)$$</div>
+  <div class="box warn"><div class="box-tag">▲ Ojo en el examen</div><p>Prepagable = pospagable $\times(1+i)$. El error típico es no multiplicar (o multiplicar de más). Pregúntate siempre: ¿el primer pago es hoy (prepagable) o dentro de un periodo (pospagable)?</p></div>
+
+  <h4 class="sub">El cuadro completo de la renta constante (los 4 casos)</h4>
+  <div class="prose"><p>Toda renta constante se valora en uno de <strong>cuatro casos</strong>, según <strong>dónde</strong> la valoremos (inicio u origen $V_0$, o final $V_n$) y <strong>cuándo</strong> se paga (pospagable o prepagable). Esta es la tabla maestra:</p></div>
+  <div class="tbl-wrap"><table class="data">
+    <tr><th style="width:18%"></th><th>Valor inicial $V_0$ (en el origen)</th><th>Valor final $V_n$ (en el término)</th></tr>
+    <tr><td><strong>Pospagable</strong><br><span style="font-size:12px;color:var(--muted)">paga al final del periodo</span></td>
+        <td class="mono">$V_0 = C\,a_{\overline{n}\rceil i}$<br>$a_{\overline{n}\rceil i}=\dfrac{1-(1+i)^{-n}}{i}$</td>
+        <td class="mono">$V_n = C\,s_{\overline{n}\rceil i}$<br>$s_{\overline{n}\rceil i}=\dfrac{(1+i)^{n}-1}{i}$</td></tr>
+    <tr><td><strong>Prepagable</strong><br><span style="font-size:12px;color:var(--muted)">paga al principio</span></td>
+        <td class="mono">$V_0 = C\,\ddot a_{\overline{n}\rceil i}$<br>$\ddot a_{\overline{n}\rceil i}=a_{\overline{n}\rceil i}(1+i)=\dfrac{(1+i)-(1+i)^{-n+1}}{i}$</td>
+        <td class="mono">$V_n = C\,\ddot s_{\overline{n}\rceil i}$<br>$\ddot s_{\overline{n}\rceil i}=s_{\overline{n}\rceil i}(1+i)=\dfrac{(1+i)^{n+1}-(1+i)}{i}$</td></tr>
+  </table></div>
+
+  <div class="map-wrap">
+    <svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" font-family="Spline Sans, sans-serif">
+      <!-- POSPAGABLE -->
+      <text x="20" y="34" fill="#1d4e44" font-size="14" font-weight="600">Pospagable — pagos al final de cada periodo</text>
+      <line x1="60" y1="70" x2="660" y2="70" stroke="#54897b" stroke-width="1.6"/>
+      <g fill="#1b2a27" font-size="12" text-anchor="middle">
+        <text x="60" y="90">0</text><text x="180" y="90">1</text><text x="300" y="90">2</text><text x="460" y="90">n−1</text><text x="600" y="90">n</text>
+      </g>
+      <g font-size="13" fill="#b25a2b" font-weight="600" text-anchor="middle">
+        <text x="180" y="58">C</text><text x="300" y="58">C</text><text x="600" y="58">C</text>
+      </g>
+      <g stroke="#b25a2b" stroke-width="1.5"><line x1="180" y1="64" x2="180" y2="76"/><line x1="300" y1="64" x2="300" y2="76"/><line x1="600" y1="64" x2="600" y2="76"/></g>
+      <text x="60" y="112" fill="#9c352f" font-size="11" text-anchor="middle">V₀</text>
+      <text x="600" y="112" fill="#1d4e44" font-size="11" text-anchor="middle">Vₙ</text>
+      <!-- PREPAGABLE -->
+      <text x="20" y="184" fill="#b25a2b" font-size="14" font-weight="600">Prepagable — pagos al principio de cada periodo</text>
+      <line x1="60" y1="220" x2="660" y2="220" stroke="#54897b" stroke-width="1.6"/>
+      <g fill="#1b2a27" font-size="12" text-anchor="middle">
+        <text x="60" y="240">0</text><text x="180" y="240">1</text><text x="300" y="240">2</text><text x="460" y="240">n−1</text><text x="600" y="240">n</text>
+      </g>
+      <g font-size="13" fill="#1d4e44" font-weight="600" text-anchor="middle">
+        <text x="60" y="208">C</text><text x="180" y="208">C</text><text x="460" y="208">C</text>
+      </g>
+      <g stroke="#1d4e44" stroke-width="1.5"><line x1="60" y1="214" x2="60" y2="226"/><line x1="180" y1="214" x2="180" y2="226"/><line x1="460" y1="214" x2="460" y2="226"/></g>
+      <text x="60" y="262" fill="#9c352f" font-size="11" text-anchor="middle">V₀</text>
+      <text x="600" y="262" fill="#1d4e44" font-size="11" text-anchor="middle">Vₙ</text>
+    </svg>
+  </div>
+
+  <div class="box key"><div class="box-tag">★ Las cuatro relaciones que lo conectan todo</div><p>No memorices las cuatro fórmulas por separado: calcula <strong>una</strong> y muévete con estos puentes.</p>
+  <p style="margin-top:6px">$$s_{\overline{n}\rceil i}=a_{\overline{n}\rceil i}(1+i)^{n}\quad;\quad \ddot a_{\overline{n}\rceil i}=a_{\overline{n}\rceil i}(1+i)\quad;\quad \ddot s_{\overline{n}\rceil i}=s_{\overline{n}\rceil i}(1+i)\quad;\quad \ddot s_{\overline{n}\rceil i}=\ddot a_{\overline{n}\rceil i}(1+i)^{n}$$</p>
+  <p>En palabras: <strong>de inicial a final</strong> se multiplica por $(1+i)^{n}$ (capitalizar $n$ periodos); <strong>de pospagable a prepagable</strong> se multiplica por $(1+i)$ (un periodo antes).</p></div>
+
+  <h3 class="sec" id="t3-geometrica">3.3 · Rentas variables en progresión geométrica</h3>
+  <div class="prose"><p>Los términos crecen (o decrecen) multiplicándose por una razón $q$ constante: $C, Cq, Cq^2,\dots,Cq^{\,n-1}$. Es el caso de pagos que suben un % fijo cada periodo (alquileres, salarios indexados).</p></div>
+  <div class="formula"><div class="flabel">Valor final · renta geométrica pospagable (caso $q\neq 1+i$)</div>$$V_n = C\cdot\frac{(1+i)^{n} - q^{\,n}}{\,1+i-q\,}$$</div>
+  <div class="prose"><p>El valor actual se obtiene descontando: $V_0 = V_n\,(1+i)^{-n}$. <strong>Caso particular</strong> $q=1+i$: la fórmula anterior se indetermina y se demuestra que $V_0 = C\,(1+i)^{-1}\cdot n$ (los $n$ términos descontados valen todos lo mismo).</p></div>
+  <div class="box note"><div class="box-tag">▸ Truco de signo</div><p>Si la renta <strong>decrece</strong> un $p\%$, entonces $q = 1-p$. Si <strong>crece</strong> un $p\%$, $q=1+p$. La misma fórmula sirve para ambos: solo cambia el valor de $q$.</p></div>
+
+  <h4 class="sub">El cuadro completo de la renta geométrica</h4>
+  <div class="prose"><p>Términos $C,\,Cq,\,Cq^2,\dots,Cq^{\,n-1}$ (primer término $C$, razón $q$). Igual que en la constante, hay cuatro valoraciones. Caso general $q\neq 1+i$:</p></div>
+  <div class="tbl-wrap"><table class="data">
+    <tr><th style="width:18%"></th><th>Valor inicial $V_0$</th><th>Valor final $V_n$</th></tr>
+    <tr><td><strong>Pospagable</strong></td>
+        <td class="mono">$V_0 = C\,\dfrac{1-q^{n}(1+i)^{-n}}{1+i-q}$</td>
+        <td class="mono">$V_n = C\,\dfrac{(1+i)^{n}-q^{n}}{1+i-q}$</td></tr>
+    <tr><td><strong>Prepagable</strong></td>
+        <td class="mono">$V_0^{\text{pre}} = V_0\,(1+i)$</td>
+        <td class="mono">$V_n^{\text{pre}} = V_n\,(1+i)$</td></tr>
+  </table></div>
+  <div class="box note"><div class="box-tag">▸ Caso particular $q = 1+i$</div><p>La fórmula general se indetermina (denominador $1+i-q=0$). Se demuestra que <strong>todos los términos descontados valen lo mismo</strong>, y queda:</p><p style="margin-top:6px">$$V_0 = C\,(1+i)^{-1}\,n\qquad;\qquad V_n = C\,n\,(1+i)^{\,n-1}$$</p></div>
+  <div class="box key"><div class="box-tag">★ Cómo se usa</div><p>Calcula el valor final $V_n$ con la fórmula de arriba (la más limpia) y muévete con los mismos puentes de la renta constante: $V_0 = V_n(1+i)^{-n}$ y prepagable $=$ pospagable $\times(1+i)$. Si la renta <strong>crece</strong> un $g\%$, $q=1+g$; si <strong>decrece</strong>, $q=1-g$.</p></div>
+
+  <h3 class="sec" id="t3-perpetua">3.4 · Rentas perpetuas</h3>
+  <div class="box intu"><div class="box-tag">◆ Intuición</div><p>Una renta que no acaba nunca ($n\to\infty$). Solo tiene <strong>valor actual</strong> (el valor final sería infinito). Al hacer $n\to\infty$ en $a_{\overline{n}\rceil i}$, el término $(1+i)^{-n}\to 0$:</p></div>
+  <div class="formula"><div class="flabel">Valor actual · renta perpetua constante pospagable</div>$$a_{\overline{\infty}\rceil i} = \frac{1}{i}\qquad\Longrightarrow\qquad V_0 = \frac{C}{i}$$</div>
+  <div class="prose"><p>Prepagable: $V_0 = \dfrac{C}{i}(1+i) = \dfrac{C}{i}+C$. Perpetua geométrica creciente (con $q&lt;1+i$): $V_0 = \dfrac{C}{(1+i)-q}$ (modelo de Gordon).</p></div>
+  <div class="tbl-wrap"><table class="data">
+    <tr><th>Perpetua</th><th>Pospagable</th><th>Prepagable</th><th>Condición</th></tr>
+    <tr><td>Constante</td><td class="mono">$V_0=\dfrac{C}{i}$</td><td class="mono">$V_0=\dfrac{C}{i}(1+i)$</td><td>$i&gt;0$</td></tr>
+    <tr><td>Geométrica (razón $q$)</td><td class="mono">$V_0=\dfrac{C}{1+i-q}$</td><td class="mono">$V_0=\dfrac{C(1+i)}{1+i-q}$</td><td>$q&lt;1+i$; si $q\ge 1+i$ el valor es <strong>infinito</strong></td></tr>
+  </table></div>
+  <div class="box warn"><div class="box-tag">▲ Ojo en el examen</div><p>Si el enunciado dice que la cuantía "<strong>se acaba de pagar</strong>" (como el alquiler del ejercicio 15), ese pago ya no entra: el primer término futuro es $C\cdot q$ dentro de un año. Con crecimiento $g$ y tipo $i$: $V_0=\dfrac{C(1+g)}{i-g}$. Cuanto más cerca está $g$ de $i$, más se dispara el valor.</p></div>
+
+  <h3 class="sec" id="t3-fraccionada">3.5 · Rentas fraccionadas</h3>
+  <div class="prose"><p>Los pagos se reparten en <strong>subperiodos</strong> (p.ej. mensuales dentro de un año). El procedimiento estándar es: (1) hallar el <strong>tipo efectivo del subperiodo</strong> equivalente al anual, y (2) aplicar las fórmulas de renta usando ese tipo y el número total de subperiodos. Así una renta mensual de $n$ años se trata como una renta de $12n$ términos al tipo mensual equivalente.</p></div>
+  <div class="box key"><div class="box-tag">★ Idea clave de método</div><p>Casi todo ejercicio de rentas se reduce a: (a) identificar pospagable/prepagable, (b) hallar el tipo efectivo de la periodicidad de los pagos, (c) aplicar $a$, $s$ o geométrica, (d) <strong>trasladar</strong> el resultado a la fecha que pide el enunciado multiplicando por el factor de acumulación/descuento adecuado.</p></div>
+  <div class="formula accent"><div class="flabel">Renta fraccionada · método del subperiodo</div>$$i_m = (1+i)^{1/m}-1 \qquad\Longrightarrow\qquad V_0 = C_{\text{sub}}\cdot a_{\overline{n\,m}\rceil\, i_m}$$</div>
+  <div class="prose"><p>Donde $i_m$ es el <strong>tipo efectivo del subperiodo</strong> equivalente al anual $i$, $C_{\text{sub}}$ el pago de cada subperiodo y $n\,m$ el número total de pagos. (Para la versión geométrica fraccionada se combina con la fórmula geométrica usando $i_m$.)</p></div>
+  <div class="exercise">
+    <div class="ex-head"><span class="ex-badge t">T3</span><div><div class="ex-title">Ejemplo resuelto · Renta fraccionada</div><div class="ex-meta">Pagos trimestrales, valoración con tipo anual</div></div></div>
+    <div class="ex-body">
+      <div class="ex-statement"><p>Una renta paga <strong>300 € al final de cada trimestre</strong> durante <strong>5 años</strong>. El tipo efectivo anual es el <strong>6%</strong>. Halla su valor actual.</p></div>
+      <button class="btn-solve">Ver solución paso a paso</button>
+      <div class="solution">
+        <div class="step"><div class="sn">1</div><div class="sc"><div class="st-title">Tipo efectivo trimestral equivalente</div><p>$m=4$: $\;i_4=(1{,}06)^{1/4}-1=0{,}014674$ (1,4674% trimestral). <strong>Compuesta, no proporcional.</strong></p></div></div>
+        <div class="step"><div class="sn">2</div><div class="sc"><div class="st-title">Número total de pagos</div><p>$n\cdot m = 5\cdot 4 = 20$ trimestres, con $C_{\text{sub}}=300$ €.</p></div></div>
+        <div class="step"><div class="sn">3</div><div class="sc"><div class="st-title">Aplicar la fórmula de renta</div><p>$a_{\overline{20}\rceil 0{,}014674}=\dfrac{1-(1{,}014674)^{-20}}{0{,}014674}=17{,}2266$.</p></div></div>
+        <div class="step"><div class="sn">4</div><div class="sc"><div class="st-title">Valor actual</div><p>$V_0 = 300\cdot 17{,}2266 = 5.167{,}93$ €.</p></div></div>
+        <div class="ans-final"><span class="lab">Resultado</span>V₀ = 5.167,93 €</div>
+      </div>
+    </div>
+  </div>
+  <div class="box warn"><div class="box-tag">▲ Error típico</div><p>No uses el tipo anual con 5 periodos, ni el "trimestral proporcional" $6\%/4=1{,}5\%$. En capitalización compuesta el trimestral equivalente es $(1{,}06)^{1/4}-1=1{,}4674\%$, y los periodos son $20$.</p></div>
+
+</section>
+<!-- ============================== TEMA 4 ============================== -->
+<section class="view" id="view-t4">
+  <div class="eyebrow">Tema IV</div>
+  <h2 class="view-title">Operaciones <em>financieras</em></h2>
+  <p class="view-lead">Se formaliza qué es una operación financiera y se introducen las tres herramientas de análisis que vertebran los temas siguientes: el principio de equivalencia, la reserva matemática y la TIR.</p>
+
+  <h3 class="sec" id="t4-intro">4.1 · Introducción</h3>
+  <div class="prose"><p>Una operación financiera es un <strong>intercambio de capitales con distintos vencimientos</strong> según un criterio de valoración. Se interpreta a la vez como <strong>oportunidad de inversión</strong> (para quien presta) y <strong>fuente de financiación</strong> (para quien recibe). Su <strong>precio</strong> (coste o rentabilidad) depende de:</p>
+  <ul>
+    <li><strong>Plazo:</strong> cada plazo tiene su tipo, que depende de la política monetaria y de las expectativas sobre ella.</li>
+    <li><strong>Riesgo:</strong> de que las partes no cumplan sus compromisos.</li>
+    <li><strong>Liquidez:</strong> posibilidad de salir de la operación manteniéndola viva. <strong>Interna</strong> (cancelación anticipada con la contraparte) y <strong>externa</strong> (transmisión a un tercero).</li>
+    <li><strong>Comisiones</strong> o costes de transacción.</li>
+  </ul></div>
+
+  <h3 class="sec" id="t4-concepto">4.2 · Concepto, elementos y clasificación</h3>
+  <div class="prose"><p>Una <em class="term">operación financiera</em> es un <strong>intercambio de capitales con distintos vencimientos</strong>, según un criterio de valoración (función financiera). Tiene dos lados:</p>
+  <ul>
+    <li><strong>Prestación:</strong> los capitales que entrega el prestamista, $\{(C_1,t_1),\dots,(C_n,t_n)\}$.</li>
+    <li><strong>Contraprestación:</strong> los que devuelve el prestatario, $\{(C'_1,t'_1),\dots,(C'_m,t'_m)\}$.</li>
+  </ul>
+  <p>El <strong>origen</strong> es $t_1$ (primer vencimiento de la prestación); el <strong>final</strong> es $\max(t_n, t'_m)$; la <strong>duración</strong> es la diferencia. El <strong>precio</strong> (coste o rentabilidad) depende del plazo, el riesgo de crédito, la liquidez (interna: cancelación anticipada; externa: transmisión a terceros) y las comisiones.</p></div>
+  <div class="map-wrap">
+    <svg viewBox="0 0 720 230" xmlns="http://www.w3.org/2000/svg" font-family="Spline Sans, sans-serif">
+      <text x="20" y="40" fill="#1d4e44" font-size="13" font-weight="600">Prestación</text>
+      <line x1="120" y1="50" x2="600" y2="50" stroke="#54897b" stroke-width="1.6"/>
+      <g stroke="#1b2a27" stroke-width="1.4"><line x1="130" y1="43" x2="130" y2="57"/><line x1="260" y1="43" x2="260" y2="57"/><line x1="360" y1="43" x2="360" y2="57"/><line x1="590" y1="43" x2="590" y2="57"/></g>
+      <g font-size="12" text-anchor="middle" fill="#1d4e44" font-weight="600"><text x="130" y="36">C₁</text><text x="260" y="36">C₂</text><text x="360" y="36">C₃</text><text x="590" y="36">Cₙ</text></g>
+      <g font-size="11" text-anchor="middle" fill="#1b2a27"><text x="130" y="74">t₁</text><text x="260" y="74">t₂</text><text x="360" y="74">t₃</text><text x="590" y="74">tₙ</text></g>
+      <rect x="112" y="80" width="36" height="18" rx="3" fill="none" stroke="#b25a2b"/><text x="130" y="93" font-size="10" fill="#b25a2b" text-anchor="middle">origen</text>
+      <text x="20" y="140" fill="#b25a2b" font-size="13" font-weight="600">Contraprestación</text>
+      <line x1="170" y1="150" x2="690" y2="150" stroke="#54897b" stroke-width="1.6"/>
+      <g stroke="#1b2a27" stroke-width="1.4"><line x1="180" y1="143" x2="180" y2="157"/><line x1="230" y1="143" x2="230" y2="157"/><line x1="400" y1="143" x2="400" y2="157"/><line x1="680" y1="143" x2="680" y2="157"/></g>
+      <g font-size="12" text-anchor="middle" fill="#b25a2b" font-weight="600"><text x="180" y="136">C′₁</text><text x="230" y="136">C′₂</text><text x="400" y="136">C′₃</text><text x="680" y="136">C′ₘ</text></g>
+      <g font-size="11" text-anchor="middle" fill="#1b2a27"><text x="180" y="174">t′₁</text><text x="230" y="174">t′₂</text><text x="400" y="174">t′₃</text><text x="680" y="174">t′ₘ</text></g>
+      <rect x="662" y="180" width="36" height="18" rx="3" fill="none" stroke="#b25a2b"/><text x="680" y="193" font-size="10" fill="#b25a2b" text-anchor="middle">final</text>
+      <line x1="130" y1="214" x2="680" y2="214" stroke="#9c352f" stroke-width="1.2"/><text x="405" y="210" font-size="11" fill="#9c352f" text-anchor="middle">Duración = t′ₘ − t₁</text>
+    </svg>
+  </div>
+  <h4 class="sub">Clasificación de las operaciones financieras</h4>
+  <div class="tbl-wrap"><table class="data">
+    <tr><th style="width:30%">Criterio</th><th>Tipos</th></tr>
+    <tr><td>Nº de capitales de prestación y contraprestación</td><td><strong>Simples</strong> (un capital en cada lado) · <strong>Compuestas</strong> (varios en al menos un lado)</td></tr>
+    <tr><td>Liquidez</td><td>Con liquidez <strong>interna</strong> · con liquidez <strong>externa</strong></td></tr>
+    <tr><td>Plazo</td><td><strong>Corto</strong> plazo · <strong>largo</strong> plazo</td></tr>
+  </table></div>
+
+  <h3 class="sec" id="t4-equivalencia">4.3 · Principio de equivalencia</h3>
+  <div class="box intu"><div class="box-tag">◆ Intuición</div><p>Es la ley fundamental: en ambiente de certidumbre, el valor financiero de la prestación y el de la contraprestación <strong>coinciden en cualquier fecha</strong>. De aquí salen todas las ecuaciones del curso. Para resolver, eliges una fecha cómoda y planteas la igualdad.</p></div>
+  <div class="formula"><div class="flabel">Equivalencia en el origen $t_1$ (valores actuales)</div>$$\sum_i C_i\,v(t_1,t_i) \;=\; \sum_j C'_j\,v(t_1,t'_j)$$</div>
+  <div class="formula"><div class="flabel">Equivalencia en el final (valores finales)</div>$$\sum_i C_i\,A(t_i,t'_m) \;=\; \sum_j C'_j\,A(t'_j,t'_m)$$</div>
+  <div class="prose"><p>Donde $v(t,s)$ es el factor de descuento y $A(t,s)$ el de acumulación. También puede plantearse en un punto intermedio $\tau$: prestaciones/contraprestaciones pasadas capitalizadas a $\tau$ y futuras actualizadas a $\tau$.</p></div>
+  <div class="formula accent"><div class="flabel">Equivalencia en un punto intermedio $\tau$</div>$$\sum_{t_i\le\tau} C_i\,A(t_i,\tau)+\sum_{t_i&gt;\tau} C_i\,v(\tau,t_i)=\sum_{t'_j\le\tau} C'_j\,A(t'_j,\tau)+\sum_{t'_j&gt;\tau} C'_j\,v(\tau,t'_j)$$</div>
+  <div class="box note"><div class="box-tag">▸ De la equivalencia a la reserva</div><p>Pasando términos de lado en la ecuación anterior: <strong>pasado</strong> (prestación − contraprestación, capitalizadas) $=$ <strong>futuro</strong> (contraprestación − prestación, descontadas). Esa diferencia común es la <strong>reserva</strong> $R_\tau$: el lado izquierdo es el método retrospectivo y el derecho, el prospectivo. Por eso coinciden siempre.</p></div>
+
+  <h3 class="sec" id="t4-reserva">4.4 · Reserva matemática o saldo financiero</h3>
+  <div class="box intu"><div class="box-tag">◆ Intuición</div><p>La <em class="term">reserva</em> $R_\tau$ es la cantidad que una parte debe entregar a la otra para <strong>cancelar la operación</strong> en el momento $\tau$. Es el "saldo vivo" en esa fecha. Se puede calcular mirando al pasado, al futuro o partiendo de un saldo anterior.</p></div>
+  <div class="formula"><div class="flabel">Método retrospectivo (mira al pasado)</div>$$R_\tau = \sum_{t_i\le\tau} C_i\,A(t_i,\tau) \;-\; \sum_{t'_j\le\tau} C'_j\,A(t'_j,\tau)$$</div>
+  <div class="formula"><div class="flabel">Método prospectivo (mira al futuro)</div>$$R_\tau = \sum_{t'_j&gt;\tau} C'_j\,v(\tau,t'_j) \;-\; \sum_{t_i&gt;\tau} C_i\,v(\tau,t_i)$$</div>
+  <div class="formula"><div class="flabel">Método recurrente (desde un saldo anterior $t&lt;\tau$)</div>$$R_\tau = R_t\,A(t,\tau)\;\pm\;\text{capitales intermedios capitalizados a }\tau$$</div>
+  <div class="tbl-wrap"><table class="data">
+    <tr><th>Signo</th><th>Nombre</th><th>Quién paga para cancelar</th></tr>
+    <tr><td class="mono">$R_\tau&gt;0$</td><td>Saldo acreedor (a favor del prestamista)</td><td>El <strong>prestatario</strong> entrega $R_\tau$</td></tr>
+    <tr><td class="mono">$R_\tau&lt;0$</td><td>Saldo deudor (a favor del prestatario)</td><td>El <strong>prestamista</strong> entrega $|R_\tau|$</td></tr>
+  </table></div>
+  <div class="box warn"><div class="box-tag">▲ Ojo en el examen</div><p>Retrospectivo y prospectivo <strong>dan el mismo número</strong> si la operación es coherente: úsalo como autocomprobación. El recurrente es el más rápido cuando ya conoces un saldo previo. En préstamos, la reserva = capital vivo o deuda pendiente.</p></div>
+
+  <h3 class="sec" id="t4-tir">4.5 · Coste y rentabilidad: la TIR</h3>
+  <div class="prose"><p>La <em class="term">Tasa Interna de Rentabilidad</em> ($k$ o TIR) es el tipo de interés anual en <strong>capitalización compuesta</strong> que iguala el valor de la prestación y la contraprestación. Es la medida universal del coste (para quien recibe) o la rentabilidad (para quien presta).</p></div>
+  <div class="formula"><div class="flabel">Ecuación de la TIR (planteada en el origen)</div>$$\sum_i C_i\,(1+k)^{-(t_i-t_1)} \;=\; \sum_j C'_j\,(1+k)^{-(t'_j-t_1)}$$</div>
+  <div class="prose"><p>Se resuelve numéricamente (función TIR de Excel o tanteo). Las <em class="term">características comerciales</em> son capitales adicionales (comisiones, gastos, impuestos) no incluidos en el equilibrio puro:</p>
+  <ul>
+    <li><strong>Bilaterales:</strong> entre las partes (comisión de apertura, gastos de formalización).</li>
+    <li><strong>Unilaterales:</strong> de una parte a un tercero (impuestos a Hacienda).</li>
+  </ul></div>
+  <div class="cmp-grid">
+    <div class="cmp-col"><h4>TIR activa (coste real del prestatario)</h4><ul><li>Se calcula sobre los flujos <strong>reales del prestatario</strong>: lo que realmente recibe y todo lo que paga (incluidos gastos y comisiones).</li><li>Si el prestatario soporta gastos, su coste real queda <strong>por encima</strong> de la TIR pura.</li></ul></div>
+    <div class="cmp-col"><h4>TIR pasiva (rentabilidad real del prestamista)</h4><ul><li>Se calcula sobre los flujos <strong>reales del prestamista</strong>: comisiones que cobra, gastos e impuestos que paga.</li><li>Sube si cobra comisiones; baja si paga a terceros (Hacienda).</li></ul></div>
+  </div>
+  <div class="formula"><div class="flabel">Ecuación de la TIR planteada en el final $t'_m$</div>$$\sum_i C_i\,(1+k)^{\,t'_m-t_i} \;=\; \sum_j C'_j\,(1+k)^{\,t'_m-t'_j}$$</div>
+  <div class="cmp-grid">
+    <div class="cmp-col"><h4>Prestación y contraprestación puras</h4><ul><li>Capitales que se usan para el <strong>equilibrio</strong> según el criterio pactado.</li><li>Su TIR es la TIR pura (sin comisiones = tipo pactado).</li></ul></div>
+    <div class="cmp-col"><h4>Prestación y contraprestación reales</h4><ul><li>Las puras <strong>más</strong> los capitales de las características comerciales.</li><li>Dan lugar a la <strong>TIR activa</strong> (prestatario) y <strong>TIR pasiva</strong> (prestamista).</li></ul></div>
+  </div>
+  <div class="box warn"><div class="box-tag">▲ Ojo: bilateral vs. unilateral (trampa de examen)</div><p>Si el gasto es <strong>bilateral</strong> y lo paga el prestatario <strong>al prestamista</strong> (p.ej. 1% de gestión), lo que uno paga lo cobra el otro: ambas TIR reales <strong>suben y coinciden</strong> (ejercicio 9: de 2,11% a 2,82% para los dos). Solo los gastos <strong>unilaterales</strong> (a terceros: notaría, Hacienda) separan las dos TIR: el coste real del prestatario queda por encima de la rentabilidad real del prestamista.</p></div>
+
+  <h3 class="sec" id="t4-tae">4.6 · Tanto efectivo anual (TEA / TAE)</h3>
+  <div class="prose"><p>El <em class="term">TEA</em> (lo que los bancos llaman <strong>TAE</strong>) es el tipo efectivo anual equivalente que <strong>incorpora la frecuencia de liquidación y las comisiones</strong>, permitiendo comparar productos heterogéneos en igualdad de condiciones. Para un tipo nominal $j$ liquidado $m$ veces al año:</p></div>
+  <div class="formula accent"><div class="flabel">TEA a partir de un nominal</div>$$\text{TEA} = \left(1 + \frac{j}{m}\right)^{m} - 1$$</div>
+  <div class="box key"><div class="box-tag">★ Idea clave</div><p>La TAE es, conceptualmente, la <strong>TIR anualizada de la operación con todas sus características comerciales</strong>. Por eso dos productos con el mismo nominal pero distintas comisiones tienen TAE distinta: la TAE es la que de verdad permite comparar.</p></div>
+</section>
+<!-- ============================== MAPA CONCEPTUAL ============================== -->
+<section class="view" id="view-mapa">
+  <div class="eyebrow">Visualización</div>
+  <h2 class="view-title">Mapas <em>conceptuales</em></h2>
+  <p class="view-lead">Cómo se conectan las ideas de los Temas 3 y 4. Pulsa para cambiar de mapa.</p>
+  <div class="map-tabs" id="map-tabs">
+    <button class="deck-tab active" data-map="global">Arquitectura T3 → T4</button>
+    <button class="deck-tab" data-map="rentas">Mapa de rentas</button>
+    <button class="deck-tab" data-map="riesgo">Mapa de operaciones</button>
+  </div>
+
+  <div class="map-wrap" data-mapview="global">
+    <svg viewBox="0 0 820 400" xmlns="http://www.w3.org/2000/svg" font-family="Spline Sans, sans-serif">
+      <defs><marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L7,3 L0,6 Z" fill="#54897b"/></marker></defs>
+      <g stroke="#54897b" stroke-width="1.6" fill="none" marker-end="url(#ar)" opacity="0.85">
+        <path d="M410,74 L410,112"/><path d="M340,160 L200,212"/><path d="M480,160 L620,212"/><path d="M270,244 L540,244"/><path d="M620,272 L620,312"/><path d="M200,272 L200,312"/>
+      </g>
+      <rect x="310" y="30" width="200" height="44" rx="10" fill="#1d4e44"/><text x="410" y="57" fill="#f1ece0" font-size="14" font-weight="600" text-anchor="middle">Capital financiero (C, t)</text>
+      <rect x="290" y="114" width="240" height="46" rx="10" fill="#fbf8f0" stroke="#d9cdb2"/><text x="410" y="135" fill="#1b2a27" font-size="13.5" font-weight="600" text-anchor="middle">Capitalizar A(t,s) · Descontar v(t,s)</text><text x="410" y="152" fill="#6f6553" font-size="11" text-anchor="middle">compuesta, tipo efectivo del periodo</text>
+      <rect x="80" y="214" width="190" height="58" rx="10" fill="#b25a2b"/><text x="175" y="238" fill="#fff" font-size="14" font-weight="600" text-anchor="middle">T3 · Rentas</text><text x="175" y="258" fill="#ecc79e" font-size="11" text-anchor="middle">V₀ y Vₙ de muchos capitales</text>
+      <rect x="540" y="214" width="200" height="58" rx="10" fill="#1d4e44"/><text x="640" y="238" fill="#f1ece0" font-size="14" font-weight="600" text-anchor="middle">T4 · Operaciones</text><text x="640" y="258" fill="#a9bdb5" font-size="11" text-anchor="middle">prestación = contraprestación</text>
+      <text x="405" y="236" fill="#6f6553" font-size="11" text-anchor="middle">las rentas valoran cada lado</text>
+      <rect x="80" y="314" width="240" height="46" rx="10" fill="#eef4ee" stroke="#cadcc9"/><text x="200" y="342" fill="#1d4e44" font-size="12.5" font-weight="600" text-anchor="middle">cte · geométrica · perpetua · fraccionada</text>
+      <rect x="500" y="314" width="250" height="46" rx="10" fill="#eef4ee" stroke="#cadcc9"/><text x="625" y="342" fill="#1d4e44" font-size="12.5" font-weight="600" text-anchor="middle">equivalencia → reserva → TIR → TAE</text>
+    </svg>
+  </div>
+
+  <div class="map-wrap" data-mapview="rentas" style="display:none">
+    <svg viewBox="0 0 820 400" xmlns="http://www.w3.org/2000/svg" font-family="Spline Sans, sans-serif">
+      <defs><marker id="ar2" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L7,3 L0,6 Z" fill="#b25a2b"/></marker></defs>
+      <g stroke="#b25a2b" stroke-width="1.6" fill="none" marker-end="url(#ar2)">
+        <path d="M410,72 L130,120"/><path d="M410,72 L320,120"/><path d="M410,72 L510,120"/><path d="M410,72 L700,120"/>
+        <path d="M130,168 L130,214"/><path d="M320,168 L320,214"/><path d="M510,168 L510,214"/><path d="M700,168 L700,214"/>
+        <path d="M410,300 L410,330"/>
+      </g>
+      <rect x="300" y="28" width="220" height="44" rx="10" fill="#1d4e44"/><text x="410" y="55" fill="#f1ece0" font-size="14" font-weight="600" text-anchor="middle">Renta financiera</text>
+      <g font-size="12.5" font-weight="600" text-anchor="middle">
+        <rect x="55" y="122" width="150" height="46" rx="9" fill="#fbf8f0" stroke="#d9cdb2"/><text x="130" y="150" fill="#1b2a27">Constante</text>
+        <rect x="245" y="122" width="150" height="46" rx="9" fill="#fbf8f0" stroke="#d9cdb2"/><text x="320" y="150" fill="#1b2a27">Geométrica (q)</text>
+        <rect x="435" y="122" width="150" height="46" rx="9" fill="#fbf8f0" stroke="#d9cdb2"/><text x="510" y="150" fill="#1b2a27">Perpetua</text>
+        <rect x="625" y="122" width="150" height="46" rx="9" fill="#fbf8f0" stroke="#d9cdb2"/><text x="700" y="150" fill="#1b2a27">Fraccionada</text>
+      </g>
+      <g font-size="11" text-anchor="middle" fill="#1d4e44">
+        <rect x="45" y="216" width="170" height="84" rx="9" fill="#eef4ee" stroke="#cadcc9"/><text x="130" y="238">V₀ = C·a(n,i)</text><text x="130" y="256">Vₙ = C·s(n,i)</text><text x="130" y="274">pre = pos·(1+i)</text><text x="130" y="292">Vₙ = V₀(1+i)ⁿ</text>
+        <rect x="235" y="216" width="170" height="84" rx="9" fill="#eef4ee" stroke="#cadcc9"/><text x="320" y="240">Vₙ = C[(1+i)ⁿ−qⁿ]/(1+i−q)</text><text x="320" y="262">q = 1+i ⇒ V₀ = C·n/(1+i)</text><text x="320" y="284">crece g ⇒ q=1+g</text>
+        <rect x="425" y="216" width="170" height="84" rx="9" fill="#eef4ee" stroke="#cadcc9"/><text x="510" y="240">V₀ = C/i</text><text x="510" y="262">geom: C/(1+i−q)</text><text x="510" y="284">solo si q &lt; 1+i</text>
+        <rect x="615" y="216" width="170" height="84" rx="9" fill="#eef4ee" stroke="#cadcc9"/><text x="700" y="240">iₘ = (1+i)^(1/m) − 1</text><text x="700" y="262">n·m términos</text><text x="700" y="284">nunca i/m</text>
+      </g>
+      <rect x="230" y="332" width="360" height="50" rx="10" fill="#b25a2b"/><text x="410" y="354" fill="#fff" font-size="12.5" font-weight="600" text-anchor="middle">Siempre: tipo del periodo de pago → fórmula →</text><text x="410" y="372" fill="#fff" font-size="12.5" font-weight="600" text-anchor="middle">trasladar a la fecha que pide el enunciado</text>
+    </svg>
+  </div>
+
+  <div class="map-wrap" data-mapview="riesgo" style="display:none">
+    <svg viewBox="0 0 820 420" xmlns="http://www.w3.org/2000/svg" font-family="Spline Sans, sans-serif">
+      <defs><marker id="ar3" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L7,3 L0,6 Z" fill="#1d4e44"/></marker></defs>
+      <g stroke="#1d4e44" stroke-width="1.6" fill="none" marker-end="url(#ar3)">
+        <path d="M410,70 L410,104"/><path d="M410,150 L200,196"/><path d="M410,150 L620,196"/><path d="M200,262 L200,300"/><path d="M620,262 L620,300"/><path d="M620,346 L620,372"/>
+      </g>
+      <rect x="250" y="26" width="320" height="44" rx="10" fill="#1d4e44"/><text x="410" y="53" fill="#f1ece0" font-size="13.5" font-weight="600" text-anchor="middle">Prestación {(Cᵢ,tᵢ)} · Contraprestación {(C′ⱼ,t′ⱼ)}</text>
+      <rect x="270" y="106" width="280" height="44" rx="10" fill="#b25a2b"/><text x="410" y="133" fill="#fff" font-size="13.5" font-weight="600" text-anchor="middle">Principio de equivalencia (en cualquier τ)</text>
+      <rect x="70" y="198" width="260" height="64" rx="10" fill="#fbf8f0" stroke="#d9cdb2"/><text x="200" y="222" fill="#1b2a27" font-size="13" font-weight="600" text-anchor="middle">Reserva matemática Rτ</text><text x="200" y="242" fill="#6f6553" font-size="11" text-anchor="middle">retrospectiva = prospectiva</text><text x="200" y="256" fill="#6f6553" font-size="11" text-anchor="middle">recurrente desde Rₜ</text>
+      <rect x="490" y="198" width="260" height="64" rx="10" fill="#fbf8f0" stroke="#d9cdb2"/><text x="620" y="222" fill="#1b2a27" font-size="13" font-weight="600" text-anchor="middle">TIR k (compuesta)</text><text x="620" y="242" fill="#6f6553" font-size="11" text-anchor="middle">sin comisiones = tipo pactado</text><text x="620" y="256" fill="#6f6553" font-size="11" text-anchor="middle">iguala ambos lados</text>
+      <rect x="70" y="302" width="260" height="44" rx="10" fill="#eef4ee" stroke="#cadcc9"/><text x="200" y="329" fill="#1d4e44" font-size="12" font-weight="600" text-anchor="middle">R&gt;0 acreedor · R&lt;0 deudor</text>
+      <rect x="490" y="302" width="260" height="44" rx="10" fill="#eef4ee" stroke="#cadcc9"/><text x="620" y="322" fill="#1d4e44" font-size="12" font-weight="600" text-anchor="middle">+ características comerciales</text><text x="620" y="338" fill="#6f6553" font-size="11" text-anchor="middle">bilaterales · unilaterales</text>
+      <rect x="490" y="374" width="260" height="40" rx="10" fill="#9c352f"/><text x="620" y="399" fill="#fff" font-size="12.5" font-weight="600" text-anchor="middle">TIR activa · TIR pasiva · TAE</text>
+    </svg>
+  </div>
+  <div class="box note"><div class="box-tag">▸ Lectura</div><p>El Tema 3 es la calculadora: convierte muchos capitales periódicos en un solo valor. El Tema 4 es la regla del juego: lo que se entrega y lo que se devuelve valen lo mismo en cualquier fecha; de ahí salen la incógnita, la reserva y la TIR.</p></div>
+</section>
+
+<!-- ============================== IDEAS CLAVE ============================== -->
+<section class="view" id="view-ideas">
+  <div class="eyebrow">Lo que de verdad cae</div>
+  <h2 class="view-title">Ideas clave de <em>examen</em></h2>
+  <p class="view-lead">Lo que suele caer de los Temas 3 y 4, lo que se confunde y cómo se conectan.</p>
+
+  <h3 class="sec">Qué suele caer</h3>
+  <div class="prose"><ul>
+    <li><strong>Renta con tramos:</strong> primero una geométrica y luego una constante (o al revés), con distinta periodicidad, valorada en una fecha que no es ni el origen ni el final (T3, ejercicios adicionales).</li>
+    <li><strong>Renta fraccionada con tipo nominal:</strong> pasar $j_{(m)}$ o el efectivo anual al tipo del periodo de pago antes de aplicar la fórmula (T3).</li>
+    <li><strong>Cambio de tipo a mitad de la renta:</strong> valorar cada tramo a su tipo y encadenar los factores al trasladar (T3).</li>
+    <li><strong>Perpetuas y Gordon:</strong> valor de un inmueble o una acción con crecimiento; "se acaba de pagar" vs. "se pagará dentro de un año" (T3).</li>
+    <li><strong>Incógnita por equivalencia:</strong> hallar $X$ o $C$ igualando prestación y contraprestación en $t=0$ (T4).</li>
+    <li><strong>Reserva en una fecha</strong> por retrospectivo y prospectivo (deben coincidir) y luego por recurrente; atención a "antes" o "después" del capital que vence (T4).</li>
+    <li><strong>TIR</strong> con tipos que cambian cada año y con gastos (formalización, gestión) para prestatario y prestamista (T4).</li>
+  </ul></div>
+
+  <h3 class="sec">Conceptos fáciles de confundir</h3>
+  <div class="tbl-wrap"><table class="data">
+    <tr><th>Se confunde</th><th>...con</th><th>La diferencia</th></tr>
+    <tr><td>Pospagable</td><td>Prepagable</td><td>Prepagable = pospagable $\times(1+i)$. Mismo flujo, distinto origen/final; el valor en una fecha concreta no cambia</td></tr>
+    <tr><td>$a_{\overline n\rceil i}$ (valor actual)</td><td>$s_{\overline n\rceil i}$ (valor final)</td><td>$s=a(1+i)^n$: los separan $n$ periodos</td></tr>
+    <tr><td>Tipo del subperiodo $(1+i)^{1/m}-1$</td><td>Proporcional $i/m$</td><td>Compuesta: potencias. $i/m$ solo sale de un <strong>nominal</strong> $j_{(m)}$</td></tr>
+    <tr><td>Geométrica "crece un 2%"</td><td>"decrece un 1%"</td><td>$q=1{,}02$ frente a $q=0{,}99$; misma fórmula</td></tr>
+    <tr><td>Perpetua geométrica con $q&lt;1+i$</td><td>con $q\ge1+i$</td><td>Finita $C/(1+i-q)$ frente a valor infinito</td></tr>
+    <tr><td>Prestación</td><td>Contraprestación</td><td>Lo que entrega el prestamista / lo que devuelve el prestatario</td></tr>
+    <tr><td>Retrospectivo</td><td>Prospectivo</td><td>Pasado capitalizado (P − CP) frente a futuro descontado (CP − P). Dan lo mismo</td></tr>
+    <tr><td>Reserva "antes" del capital</td><td>"después" del capital</td><td>Difieren justo en el importe del capital que vence en $\tau$</td></tr>
+    <tr><td>$R_\tau&gt;0$</td><td>$R_\tau&lt;0$</td><td>Acreedor: paga el prestatario. Deudor: paga el prestamista</td></tr>
+    <tr><td>Característica bilateral</td><td>Unilateral</td><td>Entre las partes (ambas TIR se mueven igual) frente a pago a un tercero (separa las TIR)</td></tr>
+    <tr><td>Prestación pura</td><td>Prestación real</td><td>Real = pura + capitales de las características comerciales</td></tr>
+  </table></div>
+
+  <h3 class="sec">Relaciones importantes</h3>
+  <div class="prose"><ul>
+    <li>Cada lado de una operación (T4) suele ser una <strong>renta</strong> (T3): se valora con $a$, $s$ o geométrica.</li>
+    <li>La reserva prospectiva es el <strong>valor actual de lo que queda</strong>: una renta pendiente descontada a $\tau$.</li>
+    <li>Sin características comerciales, la <strong>TIR coincide con el tipo pactado</strong>; con tipos distintos cada año y una <strong>operación simple</strong>, la TIR es la media geométrica: $(1+k)^n=\prod(1+i(t))$; en una compuesta hay que resolver la ecuación.</li>
+    <li>La TAE es la TIR anualizada con todas las características comerciales.</li>
+  </ul></div>
+</section>
+
+<!-- ============================== DIFERENCIAS ============================== -->
+<section class="view" id="view-diferencias">
+  <div class="eyebrow">Comparativas</div>
+  <h2 class="view-title">Diferencias y <em>comparativas</em></h2>
+  <p class="view-lead">Las distinciones de los Temas 3 y 4 que más puntos valen, lado a lado.</p>
+
+  <h3 class="sec">Pospagable vs. prepagable</h3>
+  <div class="cmp-grid">
+    <div class="cmp-col"><h4>Pospagable (vencida)</h4><ul><li>Pago al final del periodo ($1,\dots,n$)</li><li>$a_{\overline n}=\dfrac{1-(1+i)^{-n}}{i}$ · $s_{\overline n}=\dfrac{(1+i)^n-1}{i}$</li></ul></div>
+    <div class="cmp-col"><h4>Prepagable (anticipada)</h4><ul><li>Pago al principio ($0,\dots,n-1$)</li><li>$\ddot a=a(1+i)$ · $\ddot s=s(1+i)$</li></ul></div>
+  </div>
+
+  <h3 class="sec">Valor actual vs. valor final</h3>
+  <div class="cmp-grid">
+    <div class="cmp-col"><h4>Valor actual $V_0$</h4><ul><li>En el <strong>origen</strong> de la renta</li><li>Descontar: $v(t)=(1+i)^{-t}$</li><li>Existe también para perpetuas</li></ul></div>
+    <div class="cmp-col"><h4>Valor final $V_n$</h4><ul><li>En el <strong>final</strong> de la renta</li><li>$V_n=V_0(1+i)^n$</li><li>No existe (infinito) en perpetuas</li></ul></div>
+  </div>
+
+  <h3 class="sec">Renta constante vs. geométrica</h3>
+  <div class="cmp-grid">
+    <div class="cmp-col"><h4>Constante</h4><ul><li>Todos los términos iguales: $C$</li><li>$V_0=C\,a_{\overline n\rceil i}$</li><li>Perpetua: $C/i$</li></ul></div>
+    <div class="cmp-col"><h4>Geométrica</h4><ul><li>$C, Cq, \dots, Cq^{n-1}$</li><li>$V_n=C\dfrac{(1+i)^n-q^n}{1+i-q}$; caso $q=1+i$: $V_0=\dfrac{Cn}{1+i}$</li><li>Perpetua: $\dfrac{C}{1+i-q}$ si $q&lt;1+i$</li></ul></div>
+  </div>
+
+  <h3 class="sec">Temporal vs. perpetua</h3>
+  <div class="cmp-grid">
+    <div class="cmp-col"><h4>Temporal</h4><ul><li>Número finito de términos</li><li>Tiene origen y final</li></ul></div>
+    <div class="cmp-col"><h4>Perpetua</h4><ul><li>Infinitos términos</li><li>Tiene origen pero no final: solo valor actual</li></ul></div>
+  </div>
+
+  <h3 class="sec">Operación simple vs. compuesta</h3>
+  <div class="cmp-grid">
+    <div class="cmp-col"><h4>Simple</h4><ul><li>Un capital en la prestación y uno en la contraprestación</li><li>Ej.: depósito de 10.000 € que se recupera en una fecha</li></ul></div>
+    <div class="cmp-col"><h4>Compuesta</h4><ul><li>Varios capitales en al menos un lado</li><li>Ej.: préstamo devuelto en varios pagos</li></ul></div>
+  </div>
+
+  <h3 class="sec">Liquidez interna vs. externa</h3>
+  <div class="cmp-grid">
+    <div class="cmp-col"><h4>Interna</h4><ul><li>Salir de la operación <strong>con la contraparte</strong></li><li>Cancelación anticipada (pagando la reserva)</li></ul></div>
+    <div class="cmp-col"><h4>Externa</h4><ul><li>Salir <strong>transmitiendo</strong> la posición a un tercero</li><li>La operación sigue viva</li></ul></div>
+  </div>
+
+  <h3 class="sec">Los tres métodos de la reserva</h3>
+  <div class="tbl-wrap"><table class="data">
+    <tr><th>Método</th><th>Mira a…</th><th>Fórmula</th><th>Cuándo usarlo</th></tr>
+    <tr><td><strong>Retrospectivo</strong></td><td>El pasado</td><td class="mono">$\sum_{\le\tau}C_iA-\sum_{\le\tau}C'_jA$</td><td>Pocos capitales pasados</td></tr>
+    <tr><td><strong>Prospectivo</strong></td><td>El futuro</td><td class="mono">$\sum_{&gt;\tau}C'_jv-\sum_{&gt;\tau}C_iv$</td><td>Pocos capitales pendientes</td></tr>
+    <tr><td><strong>Recurrente</strong></td><td>Un saldo anterior</td><td class="mono">$R_t A(t,\tau)+P-CP$</td><td>Ya tienes $R_t$</td></tr>
+  </table></div>
+
+  <h3 class="sec">TIR activa vs. TIR pasiva</h3>
+  <div class="cmp-grid">
+    <div class="cmp-col"><h4>TIR activa</h4><ul><li>Coste real del <strong>prestatario</strong></li><li>Flujos reales del prestatario (incluye lo que paga de más)</li></ul></div>
+    <div class="cmp-col"><h4>TIR pasiva</h4><ul><li>Rentabilidad real del <strong>prestamista</strong></li><li>Flujos reales del prestamista (cobros de más, pagos a terceros)</li></ul></div>
+  </div>
+
+  <h3 class="sec">Características bilaterales vs. unilaterales</h3>
+  <div class="cmp-grid">
+    <div class="cmp-col"><h4>Bilaterales</h4><ul><li>Pago <strong>entre las partes</strong> (gastos de gestión cobrados por el prestamista)</li><li>Lo que uno paga lo cobra el otro: TIR activa = TIR pasiva</li></ul></div>
+    <div class="cmp-col"><h4>Unilaterales</h4><ul><li>Pago de una parte <strong>a un tercero</strong> (Hacienda, notario)</li><li>Separan las TIR: coste real &gt; rentabilidad real</li></ul></div>
+  </div>
+</section>
+
+<!-- ============================== PROCESOS ============================== -->
+<section class="view" id="view-procesos">
+  <div class="eyebrow">Método</div>
+  <h2 class="view-title">Cómo leer los <em>procesos</em></h2>
+  <p class="view-lead">Recetas paso a paso para los problemas típicos de los Temas 3 y 4.</p>
+
+  <h3 class="sec">Valorar una renta en cualquier fecha</h3>
+  <div class="flow">
+    <div class="flow-step"><div class="fmark"><div class="fdot">1</div><div class="fline"></div></div><div class="fbody"><h4>Dibuja el eje</h4><p>Primer y último pago, periodicidad, número de términos (cuéntalos con cuidado) y la fecha pedida.</p></div></div>
+    <div class="flow-step"><div class="fmark"><div class="fdot">2</div><div class="fline"></div></div><div class="fbody"><h4>Tipo del periodo de pago</h4><p>Nominal $j_{(m)}$ → $j/m$. Efectivo anual → $(1+i)^{1/m}-1$.</p></div></div>
+    <div class="flow-step"><div class="fmark"><div class="fdot">3</div><div class="fline"></div></div><div class="fbody"><h4>Elige fórmula y "dónde deja" el valor</h4><p>$a$ pospagable deja el valor un periodo antes del primer pago; $s$ pospagable, en el último pago; las prepagables, en el primer pago ($\ddot a$) y un periodo después del último ($\ddot s$).</p></div></div>
+    <div class="flow-step"><div class="fmark"><div class="fdot">4</div><div class="fline"></div></div><div class="fbody"><h4>Traslada</h4><p>Multiplica por $(1+i)^{t}$ (hacia delante) o $(1+i)^{-t}$ (hacia atrás). Si hay días sueltos, usa $t=$ días/365 con el efectivo anual.</p></div></div>
+    <div class="flow-step"><div class="fmark"><div class="fdot">5</div></div><div class="fbody"><h4>Tramos con distinto tipo</h4><p>Cada tramo se mueve con su propio tipo; al cruzar un cambio de tipo, encadena factores.</p></div></div>
+  </div>
+
+  <h3 class="sec">Hallar una incógnita por equivalencia</h3>
+  <div class="flow">
+    <div class="flow-step"><div class="fmark"><div class="fdot">1</div><div class="fline"></div></div><div class="fbody"><h4>Tabla de flujos</h4><p>Momento · prestación · contraprestación.</p></div></div>
+    <div class="flow-step"><div class="fmark"><div class="fdot">2</div><div class="fline"></div></div><div class="fbody"><h4>Todo a $t=0$</h4><p>$\sum C_i v^{t_i}=\sum C'_j v^{t'_j}$, con $v=1/(1+i)$ (o productos de factores si el tipo cambia cada año).</p></div></div>
+    <div class="flow-step"><div class="fmark"><div class="fdot">3</div></div><div class="fbody"><h4>Despeja</h4><p>Si la incógnita se repite ($C$ en varias fechas), sácala factor común.</p></div></div>
+  </div>
+
+  <h3 class="sec">Calcular la reserva matemática</h3>
+  <div class="flow">
+    <div class="flow-step"><div class="fmark"><div class="fdot">1</div><div class="fline"></div></div><div class="fbody"><h4>Separa pasado y futuro</h4><p>"Después" del capital en $\tau$ → entra en el pasado. "Antes" → va al futuro.</p></div></div>
+    <div class="flow-step"><div class="fmark"><div class="fdot">2</div><div class="fline"></div></div><div class="fbody"><h4>Retrospectivo y prospectivo</h4><p>Pasado: P − CP capitalizados. Futuro: CP − P descontados. Deben coincidir.</p></div></div>
+    <div class="flow-step"><div class="fmark"><div class="fdot">3</div><div class="fline"></div></div><div class="fbody"><h4>Recurrente</h4><p>$R_{\tau}=R_t(1+i)^{\tau-t}+$ prestaciones del intervalo $-$ contraprestaciones del intervalo (capitalizadas a $\tau$).</p></div></div>
+    <div class="flow-step"><div class="fmark"><div class="fdot">4</div></div><div class="fbody"><h4>Interpreta el signo</h4><p>$R&gt;0$: el prestatario debe. $R&lt;0$: el prestamista debe.</p></div></div>
+  </div>
+
+  <h3 class="sec">Plantear una TIR (pura, activa, pasiva)</h3>
+  <div class="flow">
+    <div class="flow-step"><div class="fmark"><div class="fdot">1</div><div class="fline"></div></div><div class="fbody"><h4>Elige de quién son los flujos</h4><p>Prestatario (activa) o prestamista (pasiva), con sus cobros y pagos reales.</p></div></div>
+    <div class="flow-step"><div class="fmark"><div class="fdot">2</div><div class="fline"></div></div><div class="fbody"><h4>Iguala a $(1+k)$</h4><p>Todo descontado a $(1+k)^{-t}$. Si hay un único capital a cada lado: $k=(C'/C)^{1/n}-1$.</p></div></div>
+    <div class="flow-step"><div class="fmark"><div class="fdot">3</div></div><div class="fbody"><h4>Resuelve y controla</h4><p>Excel (TIR) o tanteo. Sin comisiones debe salir el tipo pactado (o, en una operación simple, la media geométrica de los tipos anuales).</p></div></div>
+  </div>
+</section>
+<!-- ============================== EJERCICIOS ============================== -->
+<section class="view" id="view-ejercicios">
+  <div class="eyebrow">Práctica guiada</div>
+  <h2 class="view-title">Ejercicios <em>resueltos</em></h2>
+  <p class="view-lead">Problemas reales de la asignatura, resueltos paso a paso con justificación de cada operación y los errores típicos señalados. Pulsa "Ver solución" o, en los interactivos, calcula tú y comprueba.</p>
+  <div class="deck-tabs" id="ex-filter">
+    <button class="deck-tab active" data-exfilter="all">Todos</button>
+    <button class="deck-tab" data-exfilter="t3">T3 · Rentas</button>
+    <button class="deck-tab" data-exfilter="t4">T4 · Operaciones</button>
+  </div>
+  <div id="ex-list"><!-- exercises injected by JS --></div>
+</section>
+
+<!-- ============================== FLASHCARDS ============================== -->
+<section class="view" id="view-flashcards">
+  <div class="eyebrow">Repaso activo</div>
+  <h2 class="view-title">Flashcards</h2>
+  <p class="view-lead">Intenta responder antes de voltear la tarjeta. Filtra por tema o repasa la baraja completa. Usa las flechas o pulsa la tarjeta para girarla.</p>
+  <div class="deck-tabs" id="fc-decks"></div>
+  <div class="fc-stage">
+    <div class="flashcard" id="flashcard">
+      <div class="fc-inner">
+        <div class="fc-face fc-front"><div class="fc-kind" id="fc-kind-f">Pregunta</div><div class="fc-q" id="fc-q">—</div><div class="fc-hint">pulsa para girar</div></div>
+        <div class="fc-face fc-back"><div class="fc-kind" id="fc-kind-b">Respuesta</div><div class="fc-a" id="fc-a">—</div><div class="fc-hint">pulsa para girar</div></div>
+      </div>
+    </div>
+    <div class="fc-controls">
+      <button class="fc-btn" id="fc-prev">‹</button>
+      <div class="fc-count" id="fc-count">1 / 1</div>
+      <button class="fc-btn" id="fc-next">›</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== QUIZ ============================== -->
+<section class="view" id="view-quiz">
+  <div class="eyebrow">Autoevaluación</div>
+  <h2 class="view-title">Quiz · <em>Examen</em></h2>
+  <p class="view-lead">Configura tu examen: elige temas y dificultad, número de preguntas y orden aleatorio. Corrección a color, explicación de cada respuesta y enlace a la teoría en que se basa.</p>
+
+  <div id="quiz-setup">
+    <div class="quiz-config">
+      <div class="qc-row">
+        <div class="qc-label">Temas incluidos</div>
+        <div class="chip-set" id="quiz-temas">
+          <span class="chip on" data-tema="t3">T3 Rentas</span>
+          <span class="chip on" data-tema="t4">T4 Operaciones</span>
+        </div>
+      </div>
+      <div class="qc-row">
+        <div class="qc-label">Dificultad</div>
+        <div class="chip-set" id="quiz-dif">
+          <span class="chip diff on facil" data-dif="facil">Fácil</span>
+          <span class="chip diff on media" data-dif="media">Media</span>
+          <span class="chip diff on dificil" data-dif="dificil">Difícil</span>
+        </div>
+      </div>
+      <div class="qc-foot">
+        <label>Nº de preguntas <input type="number" id="quiz-n" min="1" max="70" value="12"></label>
+        <label><input type="checkbox" id="quiz-rand" checked> Orden aleatorio</label>
+        <span style="flex:1"></span>
+        <button class="btn-start" id="quiz-start">Empezar quiz →</button>
+      </div>
+      <div id="quiz-avail" style="font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:14px"></div>
+    </div>
+  </div>
+
+  <div id="quiz-run" style="display:none">
+    <div class="quiz-prog">
+      <div class="prog-bar"><div class="prog-fill" id="quiz-fill" style="width:0%"></div></div>
+      <div class="prog-txt" id="quiz-counter">1 / 12</div>
+    </div>
+    <div class="q-meta" id="quiz-meta"></div>
+    <div class="q-text" id="quiz-qtext"></div>
+    <div class="options" id="quiz-options"></div>
+    <div class="q-explain" id="quiz-explain">
+      <div class="qe-tag" id="quiz-explain-tag"></div>
+      <p id="quiz-explain-text"></p>
+      <div class="qe-theory"><button class="btn-theory" id="quiz-theory-btn">▸ Consultar la teoría de esta pregunta</button></div>
+    </div>
+    <div class="quiz-nav">
+      <button class="btn-next" id="quiz-abort" style="background:#9c352f">Abandonar</button>
+      <button class="btn-next" id="quiz-next" disabled>Siguiente →</button>
+    </div>
+  </div>
+
+  <div id="quiz-done" style="display:none">
+    <div class="quiz-results">
+      <div class="score-ring" id="quiz-score">0 / 0</div>
+      <div class="score-sub" id="quiz-score-sub"></div>
+      <button class="btn-start" id="quiz-restart">Nuevo quiz</button>
+    </div>
+    <div class="result-breakdown" id="quiz-breakdown"></div>
+  </div>
+</section>
+
+<!-- ============================== FORMULARIO ============================== -->
+<section class="view" id="view-formulario">
+  <div class="eyebrow">Hoja de referencia</div>
+  <h2 class="view-title">Formulario <em>completo</em></h2>
+  <p class="view-lead">Todas las fórmulas de los Temas 3 y 4, con su función: qué calcula cada una y cuándo usarla. Pensado para repaso rápido y consulta durante los ejercicios.</p>
+  <div class="box note"><div class="box-tag">▸ Leyenda rápida</div><p>$C$ término de la renta · $n$ nº de términos · $i$ tipo efectivo del periodo · $q$ razón geométrica · $i_m$ tipo del subperiodo · $a_{\overline{n}\rceil i},\,s_{\overline{n}\rceil i}$ renta unitaria pospagable · $\ddot a,\ddot s$ prepagable · $(C_i,t_i)$ prestación · $(C'_j,t'_j)$ contraprestación · $A(t,s)$ acumulación · $v(t,s)$ descuento · $R_\tau$ reserva · $k$ TIR.</p></div>
+
+  <h3 class="sec" id="form-t3">Tema 3 · Rentas financieras</h3>
+  <div class="tbl-wrap"><table class="data">
+    <tr><th style="width:42%">Función · qué calcula</th><th>Fórmula</th></tr>
+    <tr><td><strong>Valor actual</strong> de renta unitaria constante pospagable</td><td class="mono">$a_{\overline{n}\rceil i} = \dfrac{1-(1+i)^{-n}}{i}$</td></tr>
+    <tr><td>Valor actual de una renta constante de término $C$</td><td class="mono">$V_0 = C\cdot a_{\overline{n}\rceil i}$</td></tr>
+    <tr><td><strong>Valor final</strong> de renta unitaria constante pospagable</td><td class="mono">$s_{\overline{n}\rceil i} = \dfrac{(1+i)^{n}-1}{i}$</td></tr>
+    <tr><td>Valor final de una renta constante de término $C$</td><td class="mono">$V_n = C\cdot s_{\overline{n}\rceil i}$</td></tr>
+    <tr><td>Relación entre valor final y valor actual</td><td class="mono">$s_{\overline{n}\rceil i} = a_{\overline{n}\rceil i}(1+i)^{n}\;;\ V_n = V_0(1+i)^{n}$</td></tr>
+    <tr><td>Renta <strong>prepagable</strong> (pago al principio del periodo)</td><td class="mono">$\ddot a_{\overline{n}\rceil i} = a_{\overline{n}\rceil i}(1+i)\;;\ \ddot s_{\overline{n}\rceil i} = s_{\overline{n}\rceil i}(1+i)$</td></tr>
+    <tr><td>Valor final de renta en <strong>progresión geométrica</strong> ($q\neq 1+i$)</td><td class="mono">$V_n = C\,\dfrac{(1+i)^{n}-q^{\,n}}{1+i-q}$</td></tr>
+    <tr><td>Renta geométrica, caso particular $q = 1+i$ (valor actual)</td><td class="mono">$V_0 = C\,(1+i)^{-1}\,n$</td></tr>
+    <tr><td><strong>Renta perpetua</strong> constante pospagable (valor actual)</td><td class="mono">$V_0 = \dfrac{C}{i}$</td></tr>
+    <tr><td>Renta perpetua geométrica creciente (Gordon, $q&lt;1+i$)</td><td class="mono">$V_0 = \dfrac{C}{(1+i)-q}$</td></tr>
+    <tr><td><strong>Renta geométrica</strong> pospagable, valor actual ($q\neq 1+i$)</td><td class="mono">$V_0 = C\,\dfrac{1-q^{n}(1+i)^{-n}}{1+i-q}$</td></tr>
+    <tr><td>Renta geométrica, caso $q=1+i$ (valor final)</td><td class="mono">$V_n = C\,n\,(1+i)^{\,n-1}$</td></tr>
+    <tr><td>Renta geométrica <strong>prepagable</strong> (de la pospagable)</td><td class="mono">$V_0^{\text{pre}} = V_0(1+i)\;;\ V_n^{\text{pre}} = V_n(1+i)$</td></tr>
+    <tr><td><strong>Renta fraccionada</strong> (m pagos por periodo)</td><td class="mono">$i_m=(1+i)^{1/m}-1\;;\ V_0 = C_{\text{sub}}\,a_{\overline{n m}\rceil i_m}$</td></tr>
+  </table></div>
+
+  <h3 class="sec" id="form-t4">Tema 4 · Operaciones financieras</h3>
+  <div class="tbl-wrap"><table class="data">
+    <tr><th style="width:42%">Función · qué calcula</th><th>Fórmula</th></tr>
+    <tr><td><strong>Principio de equivalencia</strong> en el origen (valores actuales)</td><td class="mono">$\displaystyle\sum_i C_i\,v(t_1,t_i) = \sum_j C'_j\,v(t_1,t'_j)$</td></tr>
+    <tr><td>Equivalencia en el final (valores finales)</td><td class="mono">$\displaystyle\sum_i C_i\,A(t_i,t'_m) = \sum_j C'_j\,A(t'_j,t'_m)$</td></tr>
+    <tr><td><strong>Reserva</strong> matemática · método <strong>retrospectivo</strong> (mira al pasado)</td><td class="mono">$R_\tau = \displaystyle\sum_{t_i\le\tau} C_i A(t_i,\tau) - \sum_{t'_j\le\tau} C'_j A(t'_j,\tau)$</td></tr>
+    <tr><td>Reserva matemática · método <strong>prospectivo</strong> (mira al futuro)</td><td class="mono">$R_\tau = \displaystyle\sum_{t'_j&gt;\tau} C'_j\,v(\tau,t'_j) - \sum_{t_i&gt;\tau} C_i\,v(\tau,t_i)$</td></tr>
+    <tr><td>Reserva matemática · método <strong>recurrente</strong> (desde un saldo anterior)</td><td class="mono">$R_\tau = R_t\,A(t,\tau)\ \pm\ \text{capitales intermedios}$</td></tr>
+    <tr><td><strong>TIR</strong> ($k$): tipo que iguala prestación y contraprestación</td><td class="mono">$\displaystyle\sum_i C_i(1+k)^{-(t_i-t_1)} = \sum_j C'_j(1+k)^{-(t'_j-t_1)}$</td></tr>
+    <tr><td><strong>TEA / TAE</strong> a partir de un nominal liquidado $m$ veces</td><td class="mono">$\text{TEA} = \left(1+\dfrac{j}{m}\right)^{m} - 1$</td></tr>
+  </table></div>
+
+  <div class="footer-note">Notación y convenios según los apuntes de la asignatura (Prof. Pilar Requena, UAH) y Navarro Arribas (2019). Para el desarrollo y la intuición de cada fórmula, ve al tema correspondiente.</div>
+</section>
+
+<!-- ============================== GLOSARIO ============================== -->
+<section class="view" id="view-glosario">
+  <div class="eyebrow">Referencia</div>
+  <h2 class="view-title">Glosario</h2>
+  <p class="view-lead">Todos los términos del curso con su definición. Busca por palabra o filtra escribiendo.</p>
+  <input class="gloss-search" id="gloss-search" type="text" placeholder="Buscar término... (p.ej. duración, cupón, reserva)">
+  <div class="gloss-count" id="gloss-count"></div>
+  <div id="gloss-list"></div>
+</section>
+
+</div>
+</main>
+</div>
+<script>
+/* ============================================================
+   AOF · Manual interactivo · motor JS
+   ============================================================ */
+'use strict';
+
+/* ---------------- EJERCICIOS RESUELTOS ---------------- */
+const EXERCISES = [
+  { id:'e5', tema:'t3', title:'Valor actual de renta constante pospagable', meta:'Tema 3 · 3.2',
+    statement:'Se desea valorar hoy una renta de 5 pagos anuales de 2.000 €, el primero dentro de un año, al 4% efectivo anual. Calcule el valor actual.',
+    interactive:{ prompt:'Valor actual $V_0$', answer:8903.65, tol:2, unit:'€', explain:'$a_{\\overline{5}\\rceil0{,}04}=\\dfrac{1-1{,}04^{-5}}{0{,}04}=4{,}451822$. $V_0=2000\\cdot4{,}451822=8.903{,}64$ €.' },
+    steps:[
+      {title:'Identificar el tipo de renta', body:'Pospagable (primer pago dentro de un año), constante, 5 términos, $i=4\\%$.'},
+      {title:'Calcular el factor', body:'$a_{\\overline{5}\\rceil0{,}04}=\\dfrac{1-(1{,}04)^{-5}}{0{,}04}=4{,}451822$.'},
+      {title:'Multiplicar por el término', body:'$V_0=C\\cdot a_{\\overline{5}\\rceil i}=2000\\cdot4{,}451822$.'},
+      {title:'Resultado', body:'$V_0=8.903{,}64$ €.'}
+    ], final:'V₀ = 8.903,64 €',
+    err:'Si el primer pago fuese hoy (prepagable), habría que multiplicar por $(1+i)$: $8.903{,}64\\cdot1{,}04=9.259{,}79$ €.' },
+  { id:'e6', tema:'t3', title:'Valor final y relación con el valor actual', meta:'Tema 3 · 3.2',
+    statement:'Para la renta del ejercicio anterior (5 pagos de 2.000 € al 4%), calcule el valor final $V_5$ usando la relación con $V_0$.',
+    interactive:{ prompt:'Valor final $V_5$', answer:10833.26, tol:3, unit:'€', explain:'$V_5=V_0(1+i)^5=8903{,}64\\cdot1{,}04^5=10.833{,}26$ €.' },
+    steps:[
+      {title:'Usar la relación oro', body:'$V_n=V_0(1+i)^n$, sin recalcular desde cero.'},
+      {title:'Sustituir', body:'$V_5=8903{,}64\\cdot(1{,}04)^5=8903{,}64\\cdot1{,}216653$.'},
+      {title:'Resultado', body:'$V_5=10.833{,}26$ €. (Equivale a $2000\\cdot s_{\\overline{5}\\rceil0{,}04}$.)'}
+    ], final:'V₅ = 10.833,26 €',
+    err:'No confundir $a$ con $s$: $a$ valora en el origen, $s$ en el final. Si ya tienes uno, el otro sale multiplicando/dividiendo por $(1+i)^n$.' },
+  { id:'e7', tema:'t3', title:'Renta perpetua', meta:'Tema 3 · 3.4',
+    statement:'Un activo paga 1.500 € al final de cada año indefinidamente. Si el tipo de mercado es el 5%, ¿cuál es su valor actual?',
+    interactive:{ prompt:'Valor actual', answer:30000, tol:1, unit:'€', explain:'$V_0=\\dfrac{C}{i}=\\dfrac{1500}{0{,}05}=30.000$ €.' },
+    steps:[
+      {title:'Reconocer la perpetuidad', body:'Pagos constantes que no acaban ⇒ perpetua pospagable. Solo tiene valor actual.'},
+      {title:'Aplicar la fórmula', body:'$V_0=\\dfrac{C}{i}=\\dfrac{1500}{0{,}05}$.'},
+      {title:'Resultado', body:'$V_0=30.000$ €.'}
+    ], final:'V₀ = 30.000 €',
+    err:'Si fuese prepagable: $V_0=\\dfrac{C}{i}(1+i)=30000\\cdot1{,}05=31.500$ €. Y si crece a tasa $g<i$: $V_0=\\dfrac{C}{i-g}$.' },
+  { id:'e8', tema:'t4', title:'TIR de una operación simple', meta:'Tema 4 · 4.5',
+    statement:'El 14/05/2021 una persona recibe un préstamo de 6.000 € y se compromete a pagar 6.250 € el 30/09/2022. Calcule la TIR anual en capitalización compuesta. (Plazo ≈ 1,3808 años.)',
+    interactive:{ prompt:'TIR anual', answer:2.99, tol:0.2, unit:'%', explain:'$6000(1+k)^{1{,}3808}=6250\\Rightarrow k=(6250/6000)^{1/1{,}3808}-1\\approx2{,}99\\%$.' },
+    steps:[
+      {title:'Plantear la equivalencia', body:'Prestación = contraprestación descontada: $6000=6250(1+k)^{-n}$, con $n\\approx1{,}3808$ años.'},
+      {title:'Despejar $k$', body:'$(1+k)^{n}=\\dfrac{6250}{6000}=1{,}041\\overline{6}$, luego $1+k=1{,}041\\overline{6}^{\\,1/1{,}3808}$.'},
+      {title:'Resultado', body:'$k\\approx2{,}99\\%$ anual.'}
+    ], final:'TIR ≈ 2,99 %',
+    err:'En simple el resultado sería distinto: $6000(1+kn)=6250\\Rightarrow k=\\dfrac{250/6000}{1{,}3808}\\approx3{,}02\\%$. Lee qué régimen pide el enunciado.' },
+  { id:'e9', tema:'t4', title:'Reserva matemática (prospectivo)', meta:'Tema 4 · 4.4',
+    statement:'Una operación al 1,5% tiene pendientes, tras la fecha $\\tau$, dos cobros de la contraprestación: 1.500 € dentro de 1 año y 8.000 € dentro de 3 años. No quedan prestaciones futuras. Calcule la reserva $R_\\tau$ por el método prospectivo.',
+    interactive:{ prompt:'Reserva $R_\\tau$', answer:9132.34, tol:5, unit:'€', explain:'$R_\\tau=1500(1{,}015)^{-1}+8000(1{,}015)^{-3}=1477{,}83+7654{,}51=9.132{,}34$ €.' },
+    steps:[
+      {title:'Método prospectivo', body:'$R_\\tau=$ (contraprestaciones futuras actualizadas a $\\tau$) − (prestaciones futuras actualizadas).'},
+      {title:'Actualizar cada cobro', body:'$1500(1{,}015)^{-1}=1.477{,}83$; $8000(1{,}015)^{-3}=7.654{,}51$.'},
+      {title:'Sumar', body:'$R_\\tau=1477{,}83+7654{,}51=9.132{,}34$ €. Como $R_\\tau>0$, saldo acreedor (el prestatario paga para cancelar).'}
+    ], final:'R_τ = 9.132,34 €',
+    err:'Cuidado con el signo y con qué lado va actualizado: prospectivo = futuro de la contraprestación menos futuro de la prestación.' },
+  { id:'d1', tema:'t3', title:'Matrícula universitaria · renta trimestral (Ejercicio adicional 1)', meta:'Tema 3 · rentas constantes · nominal trimestral',
+    statement:'Carlos paga 350 € el 30/09, 30/12, 30/03 y 30/06 de cada curso desde septiembre de 2013 (4 cursos). Tipo nominal anual capitalizable trimestralmente del 2%. A) ¿Cuánto habría acumulado al entregar el TFG el 14/07/2017? B) ¿Y si hubiera pagado los 1.400 € de cada curso de golpe cada 30 de septiembre?',
+    interactive:{ prompt:'Apartado A', answer:5819.43, tol:1, unit:'€', explain:'$350\\,s_{\\overline{16}\\rceil 0{,}005}=5.814{,}98$ € el 30/06/2017; $\\times1{,}020151^{14/365}=5.819{,}43$ €.' },
+    steps:[
+      {title:'Tipo del periodo de pago', body:'$j_{(4)}=2\\%\\Rightarrow i_4=0{,}005$ trimestral. Efectivo anual: $i=(1{,}005)^4-1=2{,}0151\\%$.'},
+      {title:'A · Valor en el último pago (30/06/2017)', body:'16 pagos pospagables: $V=350\\,s_{\\overline{16}\\rceil 0{,}005}=350\\cdot16{,}61423=5.814{,}98$ €.'},
+      {title:'A · Trasladar 14 días', body:'$5.814{,}98\\cdot(1{,}020151)^{14/365}=5.814{,}98\\cdot1{,}000766=5.819{,}43$ €.'},
+      {title:'B · Cuatro pagos anuales de 1.400 €', body:'Al efectivo anual: $1.400\\,s_{\\overline{4}\\rceil 0{,}020151}=1.400\\cdot4{,}122535=5.771{,}55$ € el 30/09/2016.'},
+      {title:'B · Trasladar al 14/07/2017 (287 días)', body:'$5.771{,}55\\cdot(1{,}020151)^{287/365}=5.771{,}55\\cdot1{,}015811=5.862{,}80$ €.'}
+    ], final:'A) 5.819,43 € · B) 5.862,80 €',
+    err:'Pagar antes (B) acumula más porque el dinero capitaliza más tiempo. Error típico: usar 2% como tipo trimestral o contar 15 pagos en vez de 16.' },
+
+  { id:'d2', tema:'t3', title:'Herencia: renta geométrica semestral (Ejercicio adicional VPG 1a)', meta:'Tema 3 · 3.3 · geométrica',
+    statement:'Una herencia paga 300 € el 15/10/2016, creciendo un 2% semestral acumulativo; el último pago semestral es el 15/04/2020. Valore esta renta el 30/03/2016 al 4% efectivo anual.',
+    interactive:{ prompt:'Valor el 30/03/2016', answer:2350.93, tol:1, unit:'€', explain:'$i_2=1{,}04^{1/2}-1=1{,}9804\\%$; 8 términos, $q=1{,}02$: $V=2.354{,}98$ € el 15/04/2016; $\\times1{,}04^{-16/365}=2.350{,}93$ €.' },
+    steps:[
+      {title:'Datos de la renta', body:'Pagos 15/10/16, 15/04/17, … , 15/04/20: $n=8$ semestres. $C=300$, $q=1{,}02$. Tipo semestral $i_2=(1{,}04)^{1/2}-1=0{,}019804$.'},
+      {title:'Valor actual geométrico pospagable (en 15/04/2016)', body:'$V_0=C\\,\\dfrac{1-q^{8}(1+i_2)^{-8}}{1+i_2-q}=2.354{,}98$ €. Ojo: $1+i_2-q=-0{,}000196$ (negativo, igual que el numerador), la fórmula sigue valiendo.'},
+      {title:'Trasladar al 30/03/2016', body:'16 días antes: $2.354{,}98\\cdot1{,}04^{-16/365}=2.350{,}93$ €.'}
+    ], final:'V = 2.350,93 €',
+    err:'Aquí $q=1{,}02>1+i_2$: en una renta temporal no pasa nada (el valor es finito); solo en las perpetuas exige $q<1+i$.' },
+
+  { id:'d3', tema:'t3', title:'Finca alquilada: renta perpetua (Ejercicio 13)', meta:'Tema 3 · 3.4',
+    statement:'Una finca rústica se alquila por 6.000 € al año; el primer cobro es dentro de un año y se mantiene constante indefinidamente. Valórela al 2%, al 3% y al 1%.',
+    interactive:{ prompt:'Valor al 2%', answer:300000, tol:1, unit:'€', explain:'Perpetua constante pospagable: $V_0=6000/0{,}02=300.000$ €.' },
+    steps:[
+      {title:'Tipo de renta', body:'Constante, perpetua y pospagable (primer cobro dentro de un año).'},
+      {title:'Valores', body:'$2\\%\\Rightarrow 300.000$ €; $3\\%\\Rightarrow 200.000$ €; $1\\%\\Rightarrow 600.000$ €.'},
+      {title:'Lectura', body:'El valor es muy sensible al tipo: pasar del 2% al 1% duplica el valor de la finca.'}
+    ], final:'300.000 € · 200.000 € · 600.000 €', err:'Si el primer cobro fuera hoy (prepagable) habría que multiplicar por $(1+i)$.' },
+
+  { id:'d4', tema:'t3', title:'Valor de una acción con dividendo creciente (Ejercicio 14)', meta:'Tema 3 · 3.4 · perpetua geométrica',
+    statement:'Una acción pagará dentro de un año un dividendo de 1,5 €, que crecerá un 1% anual acumulativo indefinidamente. Valórela al 2%, 3% y 4%.',
+    interactive:{ prompt:'Valor al 3%', answer:75, tol:0.05, unit:'€', explain:'$V_0=\\dfrac{1{,}5}{1{,}03-1{,}01}=75$ €.' },
+    steps:[
+      {title:'Perpetua geométrica pospagable', body:'$V_0=\\dfrac{C}{1+i-q}$, con $q=1{,}01<1+i$ (condición de valor finito).'},
+      {title:'Valores', body:'$2\\%:\\ 1{,}5/0{,}01=150$ €; $3\\%:\\ 1{,}5/0{,}02=75$ €; $4\\%:\\ 1{,}5/0{,}03=50$ €.'}
+    ], final:'150 € · 75 € · 50 €', err:'El denominador es $1+i-q=i-g$. Si $g\\ge i$ el valor sería infinito.' },
+
+  { id:'d5', tema:'t3', title:'Inmueble cuyo alquiler "se acaba de pagar" (Ejercicio 15)', meta:'Tema 3 · 3.4 · perpetua geométrica',
+    statement:'Un inmueble genera 9.600 € netos anuales, que se acaban de pagar, y crecerán un 1% anual. Valórelo al 2%, 3% y 4%. Después, para las combinaciones (2%; 1,5%), (3%; 2,5%) y (4%; 3,5%). Comente.',
+    interactive:{ prompt:'Valor al 3% (g = 1%)', answer:484800, tol:1, unit:'€', explain:'Primer cobro futuro: $9.600\\cdot1{,}01=9.696$; $V_0=9.696/0{,}02=484.800$ €.' },
+    steps:[
+      {title:'Primer término futuro', body:'El pago de hoy ya se cobró: el primer término es $9.600\\cdot1{,}01=9.696$ € dentro de un año.'},
+      {title:'Crecimiento 1%', body:'$V_0=\\dfrac{9.696}{i-0{,}01}$: $2\\%\\to969.600$; $3\\%\\to484.800$; $4\\%\\to323.200$ €.'},
+      {title:'Combinaciones con diferencia 0,5 puntos', body:'$\\dfrac{9.600(1+g)}{0{,}005}$: $1.948.800$ €, $1.968.000$ € y $1.987.200$ €.'},
+      {title:'Comentario', body:'Lo que determina el valor es la <strong>diferencia</strong> $i-g$, no el nivel de tipos: con la misma diferencia (0,5 puntos) los valores son casi iguales y enormes.'}
+    ], final:'969.600 / 484.800 / 323.200 € · 1.948.800 / 1.968.000 / 1.987.200 €',
+    err:'No incluyas los 9.600 € de hoy: "se acaba de pagar".' },
+
+  { id:'d6', tema:'t4', title:'Depósito a plazo (Ejercicio 1)', meta:'Tema 4 · 4.3',
+    statement:'El 12/12/2020 se depositan 10.000 € al 1% efectivo anual en compuesta, con vencimiento el 04/02/2022. Halle la contraprestación.',
+    interactive:{ prompt:'Contraprestación', answer:10114.88, tol:0.5, unit:'€', explain:'419 días: $10.000\\cdot1{,}01^{419/365}=10.114{,}88$ €.' },
+    steps:[
+      {title:'Plazo', body:'Del 12/12/2020 al 04/02/2022 hay 419 días: $n=419/365$ años.'},
+      {title:'Equivalencia en el final', body:'$C\'=10.000\\cdot1{,}01^{419/365}=10.000\\cdot1{,}011488=10.114{,}88$ €.'}
+    ], final:"C' = 10.114,88 €", err:'Es una operación simple: un capital a cada lado.' },
+
+  { id:'d7', tema:'t4', title:'Duración de un préstamo (Ejercicio 3)', meta:'Tema 4 · 4.3',
+    statement:'El 07/12/2021 se reciben 10.000 € y se devolverán 10.280 € al 1,5% anual compuesto. Calcule la duración y la fecha de vencimiento.',
+    interactive:{ prompt:'Duración en años', answer:1.8548, tol:0.002, unit:'años', explain:'$n=\\ln1{,}028/\\ln1{,}015=1{,}8548$ años (677 días).' },
+    steps:[
+      {title:'Equivalencia', body:'$10.000\\,(1{,}015)^{n}=10.280\\Rightarrow (1{,}015)^n=1{,}028$.'},
+      {title:'Logaritmos', body:'$n=\\dfrac{\\ln 1{,}028}{\\ln 1{,}015}=\\dfrac{0{,}027615}{0{,}014889}=1{,}8548$ años $\\approx 677$ días.'},
+      {title:'Fecha', body:'07/12/2021 + 677 días = <strong>15/10/2023</strong>.'}
+    ], final:'n = 1,8548 años · vencimiento 15/10/2023', err:'Despejar $n$ exige logaritmos; no confundas con la fórmula simple $n=I/(C\\,i)$.' },
+
+  { id:'d8', tema:'t4', title:'Contraprestación con tipos que cambian (Ejercicio 4)', meta:'Tema 4 · 4.3 · tipos dinámicos',
+    statement:'El 07/12/2019 se reciben 60.000 €, con tipos $i(07/12/19)=2{,}5\\%$, $i(07/12/20)=1{,}5\\%$ e $i(07/12/21)=0{,}5\\%$. Halle la contraprestación el 07/12/2022.',
+    interactive:{ prompt:'Contraprestación', answer:62734.61, tol:1, unit:'€', explain:'$60.000\\cdot1{,}025\\cdot1{,}015\\cdot1{,}005=62.734{,}61$ €.' },
+    steps:[
+      {title:'Encadenar factores', body:'Cada año capitaliza a su tipo: $C\'=60.000\\,(1{,}025)(1{,}015)(1{,}005)$.'},
+      {title:'Resultado', body:'$C\'=62.734{,}61$ €. La TIR sería la media geométrica: $(62.734{,}61/60.000)^{1/3}-1$.'}
+    ], final:"C' = 62.734,61 €", err:'No uses la media aritmética de los tipos: se multiplican los factores.' },
+
+  { id:'d9', tema:'t4', title:'Incógnita y reserva por dos métodos (Ejercicio 6)', meta:'Tema 4 · 4.4 · 1,5% compuesto',
+    statement:'P = {(X; 0), (3.000; 3)}, CP = {(1.000; 1), (1.500; 2), (8.000; 5)}, con 0 = 07/02/2022 y tipo 1,5%. Halle X y la reserva el 07/02/2024 (t = 2) y el 07/02/2025 (t = 3), justo después del capital que vence, por retrospectivo y prospectivo.',
+    interactive:{ prompt:'Cuantía X', answer:6998.35, tol:0.5, unit:'€', explain:'$X=985{,}22+1.455{,}99+7.426{,}08-2.868{,}95=6.998{,}35$ €.' },
+    steps:[
+      {title:'Equivalencia en t = 0', body:'$X+3.000v^3=1.000v+1.500v^2+8.000v^5$, $v=1/1{,}015$.'},
+      {title:'Despejar X', body:'$X=985{,}22+1.455{,}99+7.426{,}08-2.868{,}95=6.998{,}35$ €.'},
+      {title:'R(2) retrospectivo', body:'$6.998{,}35(1{,}015)^2-1.000(1{,}015)-1.500=7.209{,}87-1.015-1.500=4.694{,}87$ €.'},
+      {title:'R(2) prospectivo', body:'$8.000v^3-3.000v=7.650{,}54-2.955{,}67=4.694{,}87$ € ✓.'},
+      {title:'R(3), tras entregar los 3.000 €', body:'Prospectivo: solo queda la contraprestación de t = 5: $8.000v^2=7.765{,}29$ €. Retrospectivo da lo mismo.'}
+    ], final:'X = 6.998,35 € · R(2) = 4.694,87 € · R(3) = 7.765,29 €',
+    err:'En t = 3 el capital que vence es una PRESTACIÓN: al entregarse, la reserva sube (de 4.694,87·1,015 = 4.765,29 a 7.765,29).' },
+
+  { id:'d10', tema:'t4', title:'Cuantía C y reserva recurrente (Ejercicio 7)', meta:'Tema 4 · 4.4 · 2% compuesto',
+    statement:'P = {(1.000; 0), (2.000; 2), (7.000; 4), (1.200; 6)} y CP = {(C; 3), (C; 5), (C; 7)}, con 0 = 04/04/2022 y tipo 2%. Halle C, la reserva en t = 3 (después del pago) por retrospectivo y prospectivo, y en t = 5 por recurrente.',
+    interactive:{ prompt:'Cuantía C', answer:3845.64, tol:0.5, unit:'€', explain:'$C=10.454{,}82/(v^3+v^5+v^7)=10.454{,}82/2{,}718613=3.845{,}64$ €.' },
+    steps:[
+      {title:'Valor actual de la prestación', body:'$1.000+1.922{,}34+6.466{,}92+1.065{,}57=10.454{,}82$ €.'},
+      {title:'Despejar C (factor común)', body:'$C\\,(v^3+v^5+v^7)=10.454{,}82\\Rightarrow C=10.454{,}82/2{,}718613=3.845{,}64$ €.'},
+      {title:'R(3) retrospectivo', body:'$1.000(1{,}02)^3+2.000(1{,}02)-C=1.061{,}21+2.040-3.845{,}64=-744{,}44$ €.'},
+      {title:'R(3) prospectivo', body:'$Cv^2+Cv^4-7.000v-1.200v^3=3.696{,}31+3.552{,}78-6.862{,}75-1.130{,}79=-744{,}44$ € ✓. Saldo <strong>deudor</strong>: en t = 3 el prestatario ha devuelto más de lo recibido.'},
+      {title:'R(5) recurrente', body:'$R_5=R_3(1{,}02)^2+7.000(1{,}02)-C=-774{,}51+7.140-3.845{,}64=2.519{,}84$ €.'}
+    ], final:'C = 3.845,64 € · R(3) = −744,44 € · R(5) = 2.519,84 €',
+    err:'En el recurrente la prestación (7.000 en t = 4) SUMA y la contraprestación (C en t = 5) RESTA.' },
+
+  { id:'d11', tema:'t4', title:'Contraprestación, TIR y gastos de formalización (Ejercicio 8)', meta:'Tema 4 · 4.5',
+    statement:'El 31/01/2022 se reciben 125.000 €, con tipos 1,50%, 2,03% y 2,78% en los tres años siguientes. a) Contraprestación al vencimiento (31/01/2025). b) TIR. c) TIR del prestatario si paga 3.620 € de formalización al inicio.',
+    interactive:{ prompt:'TIR del prestatario con gastos', answer:3.1071, tol:0.01, unit:'%', explain:'$(133.049{,}29/121.380)^{1/3}-1=3{,}1071\\%$.' },
+    steps:[
+      {title:'a) Contraprestación', body:'$125.000\\cdot1{,}015\\cdot1{,}0203\\cdot1{,}0278=133.049{,}29$ € (el enunciado pone 2021 por errata: son 3 años, hasta 2025).'},
+      {title:'b) TIR', body:'$(1+k)^3=1{,}064394\\Rightarrow k=2{,}102\\%$ (media geométrica de los tres tipos).'},
+      {title:'c) Flujos reales del prestatario', body:'Recibe realmente $125.000-3.620=121.380$ € y paga 133.049,29 €.'},
+      {title:'c) TIR activa', body:'$k=(133.049{,}29/121.380)^{1/3}-1=3{,}1071\\%$: el gasto sube su coste real en 1 punto.'}
+    ], final:'M = 133.049,29 € · TIR = 2,102% · TIR prestatario = 3,107%', err:'Los gastos de formalización se restan de lo que se recibe en t = 0; no se suman al final.' },
+
+  { id:'d12', tema:'t4', title:'Operación con tipos variables, reserva y TIR con gastos (Ejercicio 9)', meta:'Tema 4 · 4.4–4.5',
+    statement:'P = {(X; 0), (10.800; 3)}, CP = {(10.500; 1), (11.200; 2), (8.950; 5)}, 0 = 31/01/2022. Tipos: 1,50%, 2,03%, 2,78%, 2,93%, 3,01%. a) X. b) Reserva en t = 3 antes de entregar el capital. c) TIR. d) TIR de prestatario y prestamista si este cobra el 1% de cada pago en gastos de gestión.',
+    interactive:{ prompt:'Cuantía X', answer:18943.63, tol:1, unit:'€', explain:'$X=10.344{,}83+10.814{,}94+7.930{,}47-10.146{,}62=18.943{,}63$ €.' },
+    steps:[
+      {title:'Factores de acumulación', body:'$A(0,1)=1{,}015$; $A(0,2)=1{,}035604$; $A(0,3)=1{,}064394$; $A(0,5)=1{,}128558$.'},
+      {title:'a) Equivalencia en 0', body:'$X=\\dfrac{10.500}{A_1}+\\dfrac{11.200}{A_2}+\\dfrac{8.950}{A_5}-\\dfrac{10.800}{A_3}=18.943{,}63$ €.'},
+      {title:'b) Retrospectivo (antes de los 10.800)', body:'$20.163{,}49-11.010{,}98-11.511{,}36=-2.358{,}85$ €.'},
+      {title:'b) Prospectivo', body:'Futuro: CP 8.950 en t = 5 y P 10.800 en t = 3 (aún no entregada): $8.950/(1{,}0293\\cdot1{,}0301)-10.800=8.441{,}15-10.800=-2.358{,}85$ € ✓.'},
+      {title:'c) TIR pura', body:'$18.943{,}63+10.800(1+k)^{-3}=10.500(1+k)^{-1}+11.200(1+k)^{-2}+8.950(1+k)^{-5}\\Rightarrow k=2{,}1095\\%$.'},
+      {title:'d) Gastos bilaterales', body:'El prestatario paga 105; 112 y 89,5 € más, que cobra el prestamista: sus flujos reales son simétricos, así que <strong>ambas TIR coinciden</strong>: $k=2{,}8226\\%$.'}
+    ], final:'X = 18.943,63 € · R(3) = −2.358,85 € · TIR = 2,11% · TIR con gastos = 2,82% (ambos)',
+    err:'Con tipos distintos cada año, la TIR de una operación compuesta NO es la media geométrica: hay que resolver la ecuación.' },
+
+  { id:'d13', tema:'t4', title:'Operación al 3%: X, reservas y TIR (Word · Ejercicio 1)', meta:'Tema 4 · equivalencia · reserva · TIR',
+    statement:'Al 3% compuesto: P = {(3.000; 0), (4.000; 3), (5.000; 7)}, CP = {(2.000; 1), (2.500; 2), (1.000; 4), (X; 6)}. a) X. b) R(3) por prospectivo y retrospectivo. c) R(5) por recurrente. d) TIR planteada en t = 7.',
+    interactive:{ prompt:'Cuantía X', answer:6614.21, tol:0.5, unit:'€', explain:'$10.726{,}02=5.186{,}72+0{,}837484X\\Rightarrow X=6.614{,}21$ €.' },
+    steps:[
+      {title:'a) VAP de la prestación', body:'$3.000+4.000v^3+5.000v^7=3.000+3.660{,}57+4.065{,}46=10.726{,}02$ €.'},
+      {title:'a) VAP de la contraprestación', body:'$1.941{,}75+2.356{,}49+888{,}49+0{,}837484X=5.186{,}72+0{,}837484X\\Rightarrow X=6.614{,}21$ €.'},
+      {title:'b) R(3) retrospectivo', body:'$3.000(1{,}03)^3+4.000-2.000(1{,}03)^2-2.500(1{,}03)=3.278{,}18+4.000-2.121{,}80-2.575=2.581{,}38$ €.'},
+      {title:'b) R(3) prospectivo', body:'$1.000v+Xv^3-5.000v^4=970{,}87+6.052{,}94-4.442{,}44=2.581{,}38$ € ✓.'},
+      {title:'c) R(5) recurrente', body:'$R_4=2.581{,}38(1{,}03)-1.000=1.658{,}82$; $R_5=1.658{,}82(1{,}03)=1.708{,}59$ €.'},
+      {title:'d) TIR en t = 7', body:'Con $i=3\\%$ ambos lados valen 13.191,66 €: TIR = 3% (sin comisiones, coincide con el pactado).'}
+    ], final:'X = 6.614,21 € · R(3) = 2.581,38 € · R(5) = 1.708,59 € · TIR = 3%', err:'Si no se dice nada, la reserva se calcula DESPUÉS del flujo de esa fecha.' },
+
+  { id:'d14', tema:'t4', title:'Operación al 1,8% con reservas negativas (Word · Ejercicio 2)', meta:'Tema 4 · equivalencia · reserva',
+    statement:'Al 1,8% compuesto: P = {(2.375; 0), (3.400; 2), (4.850; 5), (5.500; 7), (1.100; 9)}, CP = {(2.820; 1), (6.500; 3), (2.925; 4), (4.750; 8), (X; 10)}. a) X. b) R(5) por ambos métodos y R(8) por recurrente.',
+    interactive:{ prompt:'Cuantía X', answer:131.37, tol:0.5, unit:'€', explain:'$15.883{,}10=15.773{,}19+0{,}836608X\\Rightarrow X=131{,}37$ €.' },
+    steps:[
+      {title:'a) Equivalencia en 0', body:'VAP(P) = 15.883,10 €; VAP(C) = 15.773,19 + 0,836608·X ⇒ $X=131{,}37$ €.'},
+      {title:'b) R(5) retrospectivo', body:'$11.033{,}50-12.742{,}35=-1.708{,}83$ €.'},
+      {title:'b) R(5) prospectivo', body:'$4.750v^3+Xv^5-5.500v^2-1.100v^4=4.622{,}62-6.331{,}46=-1.708{,}84$ € ✓ (redondeo).'},
+      {title:'b) R(8) recurrente', body:'$R_6=-1.739{,}59$; $R_7=-1.770{,}91+5.500=3.729{,}09$; $R_8=3.796{,}22-4.750=-953{,}78$ €.'}
+    ], final:'X = 131,37 € · R(5) = −1.708,83 € · R(8) = −953,78 €', err:'Una reserva negativa no es un error: es saldo a favor del prestatario.' }
+];
+
+/* ---------------- FLASHCARDS ---------------- */
+const FLASHCARDS = [
+  {tema:'t3', q:'Valor actual de renta constante pospagable', a:'$a_{\\overline{n}\\rceil i}=\\dfrac{1-(1+i)^{-n}}{i}$ y $V_0=C\\cdot a_{\\overline{n}\\rceil i}$.'},
+  {tema:'t3', q:'Valor final de renta constante pospagable', a:'$s_{\\overline{n}\\rceil i}=\\dfrac{(1+i)^n-1}{i}$ y $V_n=C\\cdot s_{\\overline{n}\\rceil i}$.'},
+  {tema:'t3', q:'Relación entre valor actual y valor final', a:'$s_{\\overline{n}\\rceil i}=a_{\\overline{n}\\rceil i}(1+i)^n$ y $V_n=V_0(1+i)^n$. Calcula uno y obtienes el otro.'},
+  {tema:'t3', q:'Renta prepagable a partir de la pospagable', a:'$\\ddot a_{\\overline{n}\\rceil i}=a_{\\overline{n}\\rceil i}(1+i)$. El dinero entra un periodo antes, luego vale $(1+i)$ veces más.'},
+  {tema:'t3', q:'Valor final de renta geométrica pospagable', a:'$V_n=C\\dfrac{(1+i)^n-q^n}{1+i-q}$ (si $q\\neq 1+i$). Si crece $p\\%$: $q=1+p$; si decrece: $q=1-p$.'},
+  {tema:'t3', q:'Valor actual de una renta perpetua constante', a:'$V_0=\\dfrac{C}{i}$ (pospagable). Solo tiene valor actual; el final sería infinito.'},
+  {tema:'t3', q:'¿Cómo se valora una renta fraccionada?', a:'Se halla el tipo efectivo del subperiodo y se aplican las fórmulas de renta con ese tipo y el número total de subperiodos.'},
+  {tema:'t4', q:'¿Qué es una operación financiera?', a:'Un intercambio de capitales con distintos vencimientos según una función financiera. Tiene prestación, contraprestación, origen, final y duración.'},
+  {tema:'t4', q:'Principio de equivalencia', a:'El valor financiero de la prestación y la contraprestación coinciden en cualquier fecha. De aquí salen todas las ecuaciones del curso.'},
+  {tema:'t4', q:'Reserva matemática: ¿qué es?', a:'$R_\\tau$: cantidad para cancelar la operación en $\\tau$. $R_\\tau>0$ saldo acreedor (paga el prestatario); $R_\\tau<0$ saldo deudor (paga el prestamista).'},
+  {tema:'t4', q:'Métodos retrospectivo vs. prospectivo', a:'Retrospectivo: pasado capitalizado a $\\tau$ (prestación − contraprestación). Prospectivo: futuro actualizado a $\\tau$ (contraprestación − prestación). Coinciden si la operación es coherente.'},
+  {tema:'t4', q:'¿Qué es la TIR de una operación?', a:'El tipo anual en capitalización compuesta ($k$) que iguala el valor de prestación y contraprestación. Mide coste/rentabilidad.'},
+  {tema:'t4', q:'TIR activa vs. TIR pasiva', a:'Activa = coste real del prestatario (sus flujos reales). Pasiva = rentabilidad real del prestamista. Gastos bilaterales: se mueven igual. Unilaterales (a terceros): coste real > rentabilidad real.'},
+  {tema:'t4', q:'¿Qué es el TEA/TAE?', a:'Tipo efectivo anual equivalente que incorpora frecuencia de liquidación y comisiones. $\\text{TEA}=(1+j/m)^m-1$. Permite comparar productos.'},
+  {tema:'t3', q:'Las cuatro relaciones de la renta constante', a:'$s=a(1+i)^n$; $\\ddot a=a(1+i)$; $\\ddot s=s(1+i)$; $\\ddot s=\\ddot a(1+i)^n$. De inicial a final: $\\times(1+i)^n$; de pospagable a prepagable: $\\times(1+i)$.'},
+  {tema:'t3', q:'Valor final de una renta constante prepagable', a:'$\\ddot s_{\\overline{n}\\rceil i}=s_{\\overline{n}\\rceil i}(1+i)=\\dfrac{(1+i)^{n+1}-(1+i)}{i}$.'},
+  {tema:'t3', q:'Renta geométrica: caso particular q = 1+i', a:'La fórmula general se indetermina. Queda $V_0=C(1+i)^{-1}n$ y $V_n=C\\,n\\,(1+i)^{n-1}$.'},
+  {tema:'t3', q:'¿Cómo se valora una renta fraccionada?', a:'Tipo efectivo del subperiodo $i_m=(1+i)^{1/m}-1$ y $V_0=C_{sub}\\cdot a_{\\overline{nm}\\rceil i_m}$. NO uses el proporcional $i/m$.'},
+  {tema:'t3', q:'Origen, final y duración de una renta', a:'Origen: extremo inferior del primer periodo. Final: extremo superior del último. Duración: final − origen.'},
+  {tema:'t3', q:'Criterios de clasificación de las rentas', a:'Nº de capitales (temporal/perpetua), amplitud del periodo (discreta/continua), cuantía (constante/variable: geométrica, aritmética) y vencimiento (pospagable/prepagable).'},
+  {tema:'t3', q:'¿Cambia el valor de una renta si la interpreto como prepagable en vez de pospagable?', a:'No en una fecha concreta: solo cambian origen y final. Lo que cambia es qué símbolo usas y dónde deja el valor.'},
+  {tema:'t3', q:'¿Dónde "deja" el valor cada símbolo?', a:'$a$: un periodo antes del primer pago. $\\ddot a$: en el primer pago. $s$: en el último pago. $\\ddot s$: un periodo después del último pago.'},
+  {tema:'t3', q:'Perpetua geométrica: condición de valor finito', a:'$q<1+i$ (crecimiento menor que el tipo). Entonces $V_0=\\dfrac{C}{1+i-q}$; si $q\\ge1+i$ el valor es infinito.'},
+  {tema:'t3', q:'Renta perpetua cuyo último pago "se acaba de hacer"', a:'Ese pago no entra. Primer término: $C(1+g)$ dentro de un año. $V_0=\\dfrac{C(1+g)}{i-g}$.'},
+  {tema:'t3', q:'Ejemplo de los apuntes: 100 €/año, 5 años, 3%', a:'Valor actual pospagable 457,97 €; final 530,91 €; actual prepagable 471,71 €.'},
+  {tema:'t4', q:'¿De qué depende el precio de una operación financiera?', a:'Plazo, riesgo de incumplimiento, liquidez (interna y externa) y comisiones o costes de transacción.'},
+  {tema:'t4', q:'Clasificación de las operaciones financieras', a:'Por nº de capitales: simples o compuestas. Por liquidez: interna o externa. Por plazo: corto o largo.'},
+  {tema:'t4', q:'Liquidez interna vs. externa', a:'Interna: salir con la contraparte (cancelación anticipada). Externa: transmitir la posición a un tercero manteniendo viva la operación.'},
+  {tema:'t4', q:'¿Por qué retrospectivo y prospectivo dan lo mismo?', a:'Salen de la misma ecuación de equivalencia en $\\tau$: pasado (P − CP capitalizadas) = futuro (CP − P descontadas).'},
+  {tema:'t4', q:'Reserva "antes" vs. "después" del capital de τ', a:'Difieren exactamente en ese capital: una prestación la sube y una contraprestación la baja al producirse.'},
+  {tema:'t4', q:'Prestación pura vs. real', a:'Pura: capitales del equilibrio financiero. Real: puros + capitales de las características comerciales.'},
+  {tema:'t4', q:'Gastos bilaterales: efecto en las TIR', a:'Lo que paga el prestatario lo cobra el prestamista: ambas TIR reales suben y coinciden (ej. 9: 2,11% → 2,82%).'},
+  {tema:'t4', q:'TIR con tipos distintos cada año en una operación simple', a:'Media geométrica: $(1+k)^n=\\prod(1+i(t))$. En operaciones compuestas hay que resolver la ecuación.'}
+];
+
+/* ---------------- GLOSARIO ---------------- */
+const GLOSSARY = [
+  {t:'Renta financiera', tema:'T3', d:'Conjunto de capitales con vencimientos periódicos. Se valora hallando su valor actual o final.'},
+  {t:'Renta pospagable / prepagable', tema:'T3', d:'Pospagable: pago al final del periodo. Prepagable: al principio. $\\ddot a=a(1+i)$.'},
+  {t:'a (símbolo de renta)', tema:'T3', d:'$a_{\\overline{n}\\rceil i}=\\dfrac{1-(1+i)^{-n}}{i}$: valor actual de una renta unitaria pospagable de $n$ términos al tipo $i$.'},
+  {t:'s (símbolo de renta)', tema:'T3', d:'$s_{\\overline{n}\\rceil i}=\\dfrac{(1+i)^n-1}{i}$: valor final de una renta unitaria pospagable.'},
+  {t:'Renta geométrica', tema:'T3', d:'Términos que se multiplican por una razón $q$ constante. $V_n=C\\dfrac{(1+i)^n-q^n}{1+i-q}$.'},
+  {t:'Renta perpetua', tema:'T3', d:'Renta sin fin. Valor actual $V_0=C/i$ (pospagable). No tiene valor final finito.'},
+  {t:'Operación financiera', tema:'T4', d:'Intercambio de capitales con distintos vencimientos según una función financiera. Tiene prestación y contraprestación.'},
+  {t:'Prestación / Contraprestación', tema:'T4', d:'Conjunto de capitales que entrega el prestamista / que devuelve el prestatario.'},
+  {t:'Principio de equivalencia', tema:'T4', d:'El valor de la prestación y la contraprestación coinciden en cualquier fecha. Base de todas las ecuaciones.'},
+  {t:'Reserva matemática (R_τ)', tema:'T4', d:'Importe para cancelar la operación en $\\tau$. Se calcula por método retrospectivo, prospectivo o recurrente.'},
+  {t:'Saldo acreedor / deudor', tema:'T4', d:'$R_\\tau>0$: a favor del prestamista (paga el prestatario). $R_\\tau<0$: a favor del prestatario.'},
+  {t:'TIR (k)', tema:'T4', d:'Tasa interna de rentabilidad: tipo en compuesta que iguala prestación y contraprestación. Mide coste/rentabilidad.'},
+  {t:'Características comerciales', tema:'T4', d:'Capitales adicionales (comisiones, gastos, impuestos) no incluidos en el equilibrio puro. Bilaterales o unilaterales.'},
+  {t:'TIR activa / pasiva', tema:'T4', d:'Activa: coste real del prestatario ($\\ge$ pura). Pasiva: rentabilidad real del prestamista ($\\le$ pura).'},
+  {t:'TEA / TAE', tema:'T4', d:'Tipo efectivo anual con frecuencia de liquidación y comisiones: $(1+j/m)^m-1$. Permite comparar productos.'},
+  {t:'Renta fraccionada', tema:'T3', d:'Renta cuyos pagos se reparten en subperiodos. Se valora con el tipo efectivo del subperiodo $i_m=(1+i)^{1/m}-1$ y $n\\cdot m$ pagos.'},
+  {t:'Término de la renta', tema:'T3', d:'Cada uno de los capitales que forman la renta, asociado a un periodo.'},
+  {t:'Origen / final de la renta', tema:'T3', d:'Extremo inferior del primer periodo / extremo superior del último. Su diferencia es la duración.'},
+  {t:'Renta temporal', tema:'T3', d:'Renta con un número finito de términos.'},
+  {t:'Renta discreta / continua', tema:'T3', d:'Discreta: periodos de amplitud finita (anual, mensual…). Continua: amplitud infinitesimal.'},
+  {t:'Operación simple / compuesta', tema:'T4', d:'Simple: un capital en prestación y otro en contraprestación. Compuesta: varios en al menos un lado.'},
+  {t:'Liquidez interna / externa', tema:'T4', d:'Interna: salir de la operación con la contraparte (cancelación). Externa: transmitirla a un tercero.'},
+  {t:'Origen / final de la operación', tema:'T4', d:'Origen: vencimiento del primer capital de la prestación ($t_1$). Final: $\\max(t_n,t\'_m)$.'},
+  {t:'Prestación / contraprestación puras', tema:'T4', d:'Capitales que se usan para establecer el equilibrio financiero según el criterio pactado.'},
+  {t:'Prestación / contraprestación reales', tema:'T4', d:'Las puras más los capitales derivados de las características comerciales.'},
+  {t:'Método recurrente', tema:'T4', d:'Reserva en $\\tau$ a partir de la de un momento anterior $t$: $R_t A(t,\\tau)$ más prestaciones y menos contraprestaciones del intervalo.'}
+];
+
+/* ---------------- BANCO DE PREGUNTAS (QUIZ) ---------------- */
+const QUIZBANK = [
+  {tema:'t3', dif:'facil', q:'El valor actual de una renta constante pospagable unitaria es:', options:['$\\dfrac{(1+i)^n-1}{i}$','$\\dfrac{1-(1+i)^{-n}}{i}$','$\\dfrac{1}{i}$','$(1+i)^n$'], correct:1, explain:'$a_{\\overline{n}\\rceil i}=\\dfrac{1-(1+i)^{-n}}{i}$. La otra expresión es $s$ (valor final).', tv:'t3', ta:'t3-constante'},
+  {tema:'t3', dif:'facil', q:'¿Cómo se obtiene una renta prepagable a partir de la pospagable?', options:['Dividiendo por $(1+i)$','Multiplicando por $(1+i)$','Sumando $i$','No hay relación'], correct:1, explain:'$\\ddot a_{\\overline{n}\\rceil i}=a_{\\overline{n}\\rceil i}(1+i)$: el dinero entra un periodo antes.', tv:'t3', ta:'t3-constante'},
+  {tema:'t3', dif:'facil', q:'El valor actual de una renta perpetua constante pospagable es:', options:['$C\\cdot i$','$C/i$','$C(1+i)$','infinito'], correct:1, explain:'$V_0=C/i$. El valor final sí sería infinito, pero el actual converge.', tv:'t3', ta:'t3-perpetua'},
+  {tema:'t3', dif:'media', q:'Relación entre valor final y actual de una renta:', options:['$V_n=V_0/(1+i)^n$','$V_n=V_0(1+i)^n$','$V_n=V_0+i$','$V_n=V_0\\cdot n$'], correct:1, explain:'Están separados $n$ periodos de capitalización compuesta: $V_n=V_0(1+i)^n$.', tv:'t3', ta:'t3-constante'},
+  {tema:'t3', dif:'media', q:'5 pagos anuales de 2.000 €, primero dentro de 1 año, al 4%. Valor actual aprox.:', options:['$10.000$ €','$8.904$ €','$10.833$ €','$2.000$ €'], correct:1, explain:'$a_{\\overline{5}\\rceil0{,}04}=4{,}4518$; $V_0=2000\\cdot4{,}4518=8.903{,}64$ €.', tv:'t3', ta:'t3-constante'},
+  {tema:'t3', dif:'media', q:'En una renta geométrica que DECRECE un 1% cada periodo, la razón $q$ es:', options:['$1{,}01$','$0{,}99$','$0{,}01$','$1$'], correct:1, explain:'Decrecer 1% significa multiplicar por $0{,}99$ cada periodo: $q=1-0{,}01=0{,}99$.', tv:'t3', ta:'t3-geometrica'},
+  {tema:'t3', dif:'dificil', q:'Valor final de una renta geométrica pospagable (caso $q\\neq 1+i$):', options:['$C\\dfrac{(1+i)^n-q^n}{1+i-q}$','$C\\dfrac{q^n-1}{q-1}$','$C\\,s_{\\overline{n}\\rceil i}\\cdot q$','$C\\dfrac{1-q^n}{1-q}$'], correct:0, explain:'$V_n=C\\dfrac{(1+i)^n-q^n}{1+i-q}$, con términos $C,Cq,\\dots,Cq^{n-1}$.', tv:'t3', ta:'t3-geometrica'},
+  {tema:'t3', dif:'dificil', q:'En una renta geométrica pospagable con $q=1+i$, el valor actual es:', options:['Indeterminado, no existe','$C\\,(1+i)^{-1}\\cdot n$','$C/i$','$C\\,n^2$'], correct:1, explain:'La fórmula general se indetermina; se demuestra que $V_0=C(1+i)^{-1}\\,n$: los $n$ términos descontados valen lo mismo.', tv:'t3', ta:'t3-geometrica'},
+  {tema:'t3', dif:'dificil', q:'Para valorar una renta MENSUAL de 3 años, el procedimiento correcto es:', options:['Usar 3 periodos al tipo anual','Usar 36 periodos al tipo mensual equivalente','Multiplicar el anual por 12','Usar 3 periodos al tipo mensual'], correct:1, explain:'Se halla el tipo efectivo mensual y se aplican las fórmulas con $36$ subperiodos. Mezclar periodicidades es el error típico.', tv:'t3', ta:'t3-fraccionada'},
+  {tema:'t4', dif:'facil', q:'El principio de equivalencia establece que:', options:['La prestación siempre es mayor','Prestación y contraprestación tienen igual valor financiero en cualquier fecha','El interés es constante','No hay comisiones'], correct:1, explain:'Es la ley central: los valores de prestación y contraprestación coinciden en cualquier momento, dado el criterio de valoración.', tv:'t4', ta:'t4-equivalencia'},
+  {tema:'t4', dif:'facil', q:'La reserva matemática $R_\\tau$ es:', options:['El interés total','El importe para cancelar la operación en $\\tau$','La suma de cupones','La TIR'], correct:1, explain:'$R_\\tau$ es la cantidad que una parte entrega a la otra para cancelar la operación en el momento $\\tau$.', tv:'t4', ta:'t4-reserva'},
+  {tema:'t4', dif:'facil', q:'La TIR de una operación es el tipo que:', options:['Maximiza el beneficio','Iguala el valor de prestación y contraprestación','Marca el banco central','Es siempre el 5%'], correct:1, explain:'La TIR ($k$) es el tipo en compuesta que iguala ambos lados de la operación. Mide coste o rentabilidad.', tv:'t4', ta:'t4-tir'},
+  {tema:'t4', dif:'media', q:'Si $R_\\tau>0$, el saldo es:', options:['Deudor: paga el prestamista','Acreedor: paga el prestatario','Nulo','Indeterminado'], correct:1, explain:'$R_\\tau>0$ es saldo acreedor (a favor del prestamista); el prestatario entrega $R_\\tau$ para cancelar.', tv:'t4', ta:'t4-reserva'},
+  {tema:'t4', dif:'media', q:'Con gastos UNILATERALES (notaría del prestatario, impuestos del prestamista), ¿qué relación cumplen las TIR?', options:['Activa $\\le$ pura $\\le$ pasiva','Activa $\\ge$ pura $\\ge$ pasiva','Ambas iguales a la pura','Activa = pasiva'], correct:1, explain:'El prestatario paga más de lo que recibe el prestamista, y este paga a Hacienda: coste real $\\ge$ pura $\\ge$ rentabilidad real. Con gastos bilaterales, en cambio, ambas coincidirían.', tv:'t4', ta:'t4-tir'},
+  {tema:'t4', dif:'media', q:'El TEA/TAE de un nominal $j$ liquidado $m$ veces es:', options:['$j/m$','$(1+j/m)^m-1$','$j\\cdot m$','$(1+j)^m$'], correct:1, explain:'$\\text{TEA}=(1+j/m)^m-1$: incorpora la frecuencia de liquidación (y, en la práctica, las comisiones).', tv:'t4', ta:'t4-tae'},
+  {tema:'t4', dif:'dificil', q:'Retrospectivo y prospectivo de la reserva, en una operación coherente:', options:['Difieren siempre','Coinciden','El retrospectivo es mayor','Dependen del signo'], correct:1, explain:'Ambos métodos dan el mismo $R_\\tau$ si la operación es coherente: sirve como autocomprobación.', tv:'t4', ta:'t4-reserva'},
+  {tema:'t4', dif:'dificil', q:'El impuesto que el prestamista paga a Hacienda por el rendimiento obtenido es una característica comercial:', options:['Bilateral','Unilateral','Pura','Nula'], correct:1, explain:'Unilateral: pago de una parte a un tercero ajeno (Hacienda). Las bilaterales son entre las partes (apertura, gastos).', tv:'t4', ta:'t4-tir'},
+  {tema:'t4', dif:'dificil', q:'Préstamo de 6.000 € hoy a devolver 6.250 € en ≈1,38 años (compuesta). La TIR es aprox.:', options:['$4{,}2\\%$','$3{,}0\\%$','$2{,}0\\%$','$0{,}3\\%$'], correct:1, explain:'$6000(1+k)^{1{,}38}=6250\\Rightarrow k\\approx2{,}99\\%$ anual.', tv:'t4', ta:'t4-tir'},
+  {tema:'t4', dif:'dificil', q:'¿Qué método de reserva conviene cuando ya conoces el saldo en un momento anterior $t<\\tau$?', options:['Retrospectivo','Prospectivo','Recurrente','Ninguno'], correct:2, explain:'El recurrente parte de $R_t$ y lo capitaliza a $\\tau$ ajustando los movimientos intermedios. Es el más rápido en ese caso.', tv:'t4', ta:'t4-reserva'},
+  {tema:'t3', dif:'media', q:'¿Cómo se pasa del valor inicial al valor final de una renta?', options:['Multiplicando por $(1+i)$','Multiplicando por $(1+i)^{n}$','Dividiendo por $n$','Sumando $i$'], correct:1, explain:'$V_n=V_0(1+i)^{n}$ y, en símbolos, $s_{\\overline n}=a_{\\overline n}(1+i)^{n}$. De pospagable a prepagable, en cambio, se multiplica por $(1+i)$.', tv:'t3', ta:'t3-constante'},
+  {tema:'t3', dif:'dificil', q:'El valor final de una renta constante PREPAGABLE es:', options:['$s_{\\overline n\\rceil i}$','$s_{\\overline n\\rceil i}(1+i)$','$a_{\\overline n\\rceil i}(1+i)$','$s_{\\overline n\\rceil i}/(1+i)$'], correct:1, explain:'$\\ddot s_{\\overline n\\rceil i}=s_{\\overline n\\rceil i}(1+i)$: el dinero entra un periodo antes, así que vale $(1+i)$ veces más.', tv:'t3', ta:'t3-constante'},
+  {tema:'t3', dif:'dificil', q:'En una renta geométrica con $q=1+i$, el valor actual es:', options:['No existe','$C(1+i)^{-1}\\,n$','$C/i$','$C\\,n^2$'], correct:1, explain:'La fórmula general se indetermina; se demuestra que todos los términos descontados valen lo mismo y $V_0=C(1+i)^{-1}n$.', tv:'t3', ta:'t3-geometrica'},
+  {tema:'t3', dif:'media', q:'Para valorar una renta trimestral con tipo anual, el tipo del subperiodo es:', options:['$i/4$','$(1+i)^{1/4}-1$','$(1+i)^{4}-1$','$i\\cdot 4$'], correct:1, explain:'En compuesta, el trimestral equivalente es $i_4=(1+i)^{1/4}-1$, no el proporcional $i/4$. Luego se usan $n\\cdot 4$ pagos.', tv:'t3', ta:'t3-fraccionada'},
+  {tema:'t3', dif:'media', q:'Una renta pospagable de 5 términos anuales se valora con $a_{\\overline 5\\rceil i}$. ¿En qué fecha queda el valor obtenido?', options:['En el primer pago','Un periodo antes del primer pago','En el último pago','Un periodo después del último pago'], correct:1, explain:'El valor actual pospagable se sitúa en el origen, un periodo antes del primer término. $\\ddot a$ lo deja en el primer pago.', tv:'t3', ta:'t3-constante'},
+  {tema:'t3', dif:'dificil', q:'Con $\\ddot s_{\\overline n\\rceil i}$ obtienes el valor de una renta prepagable. ¿Dónde queda situado?', options:['En el último pago','Un periodo después del último pago','En el primer pago','En el origen'], correct:1, explain:'Prepagable: pagos en $0,\\dots,n-1$ y final en $n$, un periodo después del último pago.', tv:'t3', ta:'t3-constante'},
+  {tema:'t3', dif:'dificil', q:'Una misma renta se interpreta como pospagable y como prepagable. Valorada en una MISMA fecha:', options:['La prepagable vale $(1+i)$ veces más','La pospagable vale más','Valen lo mismo','Depende del número de términos'], correct:2, explain:'Es la misma corriente de pagos: solo cambian origen y final. En una fecha concreta el valor coincide.', tv:'t3', ta:'t3-concepto'},
+  {tema:'t3', dif:'media', q:'Pagos de 350 € trimestrales con $j_{(4)}=2\\%$. El tipo a usar en $s_{\\overline n\\rceil}$ es:', options:['2%','0,5%','$(1{,}02)^{1/4}-1$','2,0151%'], correct:1, explain:'Con nominal, el tipo del subperiodo es $j/m=0{,}5\\%$. El 2,0151% es el efectivo anual equivalente.', tv:'t3', ta:'t3-fraccionada'},
+  {tema:'t3', dif:'dificil', q:'Una renta geométrica temporal tiene $q=1{,}02$ semestral y $i_2=1{,}98\\%$. Entonces:', options:['No puede valorarse porque $q>1+i_2$','Se valora con la fórmula general; el valor es finito','Hay que usar la fórmula del caso $q=1+i$','Su valor es infinito'], correct:1, explain:'La condición $q<1+i$ solo se exige en perpetuas. En temporales la fórmula general vale aunque $1+i-q<0$ (numerador también negativo).', tv:'t3', ta:'t3-geometrica'},
+  {tema:'t3', dif:'dificil', q:'Una acción paga 1,5 € dentro de un año y crece un 1% anual. Si el tipo baja del 3% al 2%, su valor:', options:['Sube un 50%','Se duplica','Baja a la mitad','No cambia'], correct:1, explain:'$1{,}5/0{,}02=75$ € frente a $1{,}5/0{,}01=150$ €: se duplica porque $i-g$ pasa de 2 a 1 punto.', tv:'t3', ta:'t3-perpetua'},
+  {tema:'t3', dif:'dificil', q:'Un alquiler de 9.600 € "se acaba de pagar" y crece un 1% anual. Al 3%, el valor del inmueble es:', options:['480.000 €','484.800 €','494.400 €','320.000 €'], correct:1, explain:'El pago de hoy ya no entra: $9.600\\cdot1{,}01/(0{,}03-0{,}01)=484.800$ €. 480.000 € olvida el crecimiento del primer término; 494.400 € suma además el pago ya cobrado.', tv:'t3', ta:'t3-perpetua'},
+  {tema:'t3', dif:'media', q:'Una perpetua geométrica con $q\\ge 1+i$ tiene un valor actual:', options:['$C/i$','$C/(1+i-q)$','Infinito','Cero'], correct:2, explain:'Los términos descontados no decrecen, la serie no converge: valor infinito.', tv:'t3', ta:'t3-perpetua'},
+  {tema:'t3', dif:'facil', q:'El origen de una renta es:', options:['La fecha del primer pago','El extremo inferior del primer periodo','La fecha de valoración','El extremo superior del último periodo'], correct:1, explain:'Origen: extremo inferior del primer periodo. En una pospagable no coincide con el primer pago.', tv:'t3', ta:'t3-concepto'},
+  {tema:'t3', dif:'dificil', q:'Pagar 1.400 € de golpe cada 30/09 en vez de 350 € cada trimestre, al mismo tipo, hace que el acumulado final sea:', options:['Igual','Mayor','Menor','Depende del nominal'], correct:1, explain:'Se paga antes, así que el dinero capitaliza más tiempo: 5.862,80 € frente a 5.819,43 €.', tv:'t3', ta:'t3-fraccionada'},
+  {tema:'t4', dif:'facil', q:'¿Cuál NO es un factor del precio de una operación financiera según los apuntes?', options:['Plazo','Riesgo','Liquidez','El IVA del producto'], correct:3, explain:'El precio depende de plazo, riesgo, liquidez y comisiones o costes de transacción.', tv:'t4', ta:'t4-intro'},
+  {tema:'t4', dif:'media', q:'Transmitir a un tercero la posición en una operación que sigue viva es liquidez:', options:['Interna','Externa','Bilateral','Unilateral'], correct:1, explain:'Externa: se sale transmitiendo la posición. Interna: se sale con la contraparte (cancelación).', tv:'t4', ta:'t4-intro'},
+  {tema:'t4', dif:'facil', q:'Una operación con un capital en la prestación y otro en la contraprestación es:', options:['Compuesta','Simple','Perpetua','Unilateral'], correct:1, explain:'Simple: un capital a cada lado. Compuesta: varios en al menos un lado.', tv:'t4', ta:'t4-concepto'},
+  {tema:'t4', dif:'media', q:'El final de una operación financiera es:', options:['$t_n$ siempre','$t\'_m$ siempre','$\\max(t_n,t\'_m)$','$t_1$'], correct:2, explain:'Puede coincidir con un capital de la prestación o de la contraprestación: el mayor de ambos.', tv:'t4', ta:'t4-concepto'},
+  {tema:'t4', dif:'dificil', q:'En t = 3 vence una PRESTACIÓN de 3.000 €. La reserva justo después, respecto de la de justo antes:', options:['Es 3.000 € menor','Es 3.000 € mayor','Es igual','Cambia de signo siempre'], correct:1, explain:'Al entregar el prestamista más capital, la deuda del prestatario aumenta: $R^{+}=R^{-}+3.000$ (ejercicio 6: 4.765,29 → 7.765,29).', tv:'t4', ta:'t4-reserva'},
+  {tema:'t4', dif:'dificil', q:'En el método recurrente de $t=3$ a $t=5$, con una prestación de 7.000 en t = 4 y una contraprestación C en t = 5, al 2%:', options:['$R_5=R_3(1{,}02)^2-7.000(1{,}02)+C$','$R_5=R_3(1{,}02)^2+7.000(1{,}02)-C$','$R_5=R_3+7.000-C$','$R_5=R_3(1{,}02)^{-2}+7.000-C$'], correct:1, explain:'La reserva capitaliza, la prestación suma (capitalizada a t = 5) y la contraprestación resta.', tv:'t4', ta:'t4-reserva'},
+  {tema:'t4', dif:'dificil', q:'Una reserva de −744,44 € en t = 3 significa:', options:['Error de cálculo','El prestatario debe 744,44 €','El prestamista debería entregar 744,44 € para cancelar','La operación ha terminado'], correct:2, explain:'Saldo deudor (a favor del prestatario): hasta t = 3 ha devuelto más de lo recibido, capitalizado.', tv:'t4', ta:'t4-reserva'},
+  {tema:'t4', dif:'dificil', q:'Préstamo de 125.000 € con tipos 1,50%, 2,03% y 2,78%. Sin gastos, la TIR es:', options:['2,103% (media aritmética)','2,102% (media geométrica)','2,78%','1,50%'], correct:1, explain:'Operación simple: $(1+k)^3=1{,}015\\cdot1{,}0203\\cdot1{,}0278\\Rightarrow k=2{,}102\\%$. La aritmética (2,103%) es una trampa.', tv:'t4', ta:'t4-tir'},
+  {tema:'t4', dif:'dificil', q:'Al préstamo anterior se añaden 3.620 € de gastos de formalización pagados por el prestatario en t = 0. Su TIR:', options:['Baja a 1,1%','Sube a 3,107%','Sigue en 2,102%','Sube a 2,102% + 3.620/125.000'], correct:1, explain:'Recibe realmente 121.380 €: $(133.049{,}29/121.380)^{1/3}-1=3{,}107\\%$.', tv:'t4', ta:'t4-tir'},
+  {tema:'t4', dif:'dificil', q:'El prestamista cobra al prestatario el 1% de cada pago como gastos de gestión. Entonces:', options:['Sube la TIR del prestatario y baja la del prestamista','Suben ambas y coinciden','Solo cambia la del prestatario','No cambia ninguna'], correct:1, explain:'Característica bilateral: lo que paga uno lo cobra el otro. Ambas TIR reales coinciden (ejercicio 9: 2,82%).', tv:'t4', ta:'t4-tir'},
+  {tema:'t4', dif:'media', q:'Las TIR activa y pasiva aparecen al considerar:', options:['La reserva matemática','Las características comerciales','El método recurrente','La capitalización simple'], correct:1, explain:'Surgen al pasar de prestación/contraprestación puras a reales.', tv:'t4', ta:'t4-tir'},
+  {tema:'t4', dif:'media', q:'Sin características comerciales, la TIR de una operación pactada a tipo constante $i$:', options:['Es mayor que $i$','Coincide con $i$','Es menor que $i$','No existe'], correct:1, explain:'La operación se equilibró a ese tipo, luego la TIR es el propio $i$.', tv:'t4', ta:'t4-tir'},
+  {tema:'t4', dif:'dificil', q:'10.000 € al 1,5% compuesto se convierten en 10.280 €. La duración es:', options:['1,87 años (simple)','1,8548 años','2 años','1,5 años'], correct:1, explain:'$n=\\ln1{,}028/\\ln1{,}015=1{,}8548$. 1,87 sale de usar erróneamente la fórmula simple $280/(10.000\\cdot0{,}015)$.', tv:'t4', ta:'t4-equivalencia'},
+  {tema:'t4', dif:'media', q:'La reserva matemática se interpreta como:', options:['El interés total de la operación','Lo que una parte entrega a la otra para cancelar en τ','La TIR en τ','La suma de la prestación'], correct:1, explain:'Es el saldo financiero en τ: la cuantía para cancelar la operación en ese momento.', tv:'t4', ta:'t4-reserva'}
+];
+
+/* ============================================================
+   MOTOR
+   ============================================================ */
+const TEMA_LABEL = {t1:'T1 · Interés',t2:'T2 · Magnitudes',t3:'T3 · Rentas',t4:'T4 · Operaciones',t5:'T5 · Préstamos',t6:'T6 · Constitución',t7:'T7 · Renta fija',t8:'T8 · Duración'};
+const VIEW_TITLE = {home:'Portada',fundamentos:'Conceptos fundamentales',t1:'Tema 1 · Concepto de interés',t2:'Tema 2 · Magnitudes básicas',t3:'Tema 3 · Rentas financieras',t4:'Tema 4 · Operaciones financieras',t5:'Tema 5 · Amortización · Préstamos',t6:'Tema 6 · Constitución · Ahorro',t7:'Tema 7 · Activos de renta fija',t8:'Tema 8 · Riesgo · Duración',mapa:'Mapas conceptuales',ideas:'Ideas clave',diferencias:'Diferencias',procesos:'Procesos',glosario:'Glosario',formulario:'Formulario completo',ejercicios:'Ejercicios resueltos',flashcards:'Flashcards',quiz:'Quiz · Examen',contexto:'Sobre este manual'};
+
+function typeset(el){ if(window.MathJax && window.MathJax.typesetPromise){ window.MathJax.typesetPromise(el?[el]:undefined).catch(function(e){}); } }
+
+/* ---------- NAVEGACIÓN ---------- */
+function goView(v, anchor){
+  document.querySelectorAll('.view').forEach(function(s){ s.classList.remove('active'); });
+  var target = document.getElementById('view-'+v);
+  if(target){ target.classList.add('active'); }
+  document.querySelectorAll('.nav-item').forEach(function(b){ b.classList.toggle('active', b.dataset.view===v); });
+  var tb = document.getElementById('topbar-title'); if(tb){ tb.textContent = VIEW_TITLE[v]||'AOF'; }
+  // close mobile sidebar
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('scrim').classList.remove('show');
+  window.scrollTo({top:0, behavior:'instant'in document.documentElement.style?'instant':'auto'});
+  if(anchor){
+    setTimeout(function(){
+      var a = document.getElementById(anchor);
+      if(a){ a.scrollIntoView({behavior:'smooth', block:'start'}); }
+    }, 80);
+  }
+  typeset(target);
+}
+
+document.querySelectorAll('.nav-item').forEach(function(b){
+  b.addEventListener('click', function(){ goView(b.dataset.view); });
+});
+document.querySelectorAll('[data-goto]').forEach(function(el){
+  el.addEventListener('click', function(){ goView(el.dataset.goto); });
+});
+
+/* mobile sidebar */
+var hb = document.getElementById('hamburger');
+if(hb){ hb.addEventListener('click', function(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('scrim').classList.toggle('show');
+}); }
+document.getElementById('scrim').addEventListener('click', function(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('scrim').classList.remove('show');
+});
+
+/* mapa tabs */
+document.querySelectorAll('#map-tabs .deck-tab').forEach(function(t){
+  t.addEventListener('click', function(){
+    document.querySelectorAll('#map-tabs .deck-tab').forEach(function(x){ x.classList.remove('active'); });
+    t.classList.add('active');
+    var m = t.dataset.map;
+    document.querySelectorAll('[data-mapview]').forEach(function(mv){
+      mv.style.display = (mv.dataset.mapview===m)?'block':'none';
+    });
+  });
+});
+
+/* ---------- EJERCICIOS ---------- */
+function renderExercises(filter){
+  var list = document.getElementById('ex-list');
+  list.innerHTML = '';
+  EXERCISES.filter(function(ex){ return filter==='all' || ex.tema===filter; }).forEach(function(ex){
+    var card = document.createElement('div');
+    card.className = 'exercise';
+    var stepsHtml = ex.steps.map(function(s,i){
+      return '<div class="step"><div class="sn">'+(i+1)+'</div><div class="sc"><div class="st-title">'+s.title+'</div><p>'+s.body+'</p></div></div>';
+    }).join('');
+    var interactiveHtml = '';
+    if(ex.interactive){
+      var it = ex.interactive;
+      interactiveHtml =
+        '<div class="numcheck">'+
+          '<span style="font-size:14px;color:var(--ink-soft)">'+it.prompt+':</span>'+
+          '<input type="text" inputmode="decimal" placeholder="tu resultado" data-ans="'+it.answer+'" data-tol="'+it.tol+'">'+
+          '<span class="unit">'+(it.unit||'')+'</span>'+
+          '<button class="btn-check">Comprobar</button>'+
+        '</div>'+
+        '<div class="feedback"></div>';
+    }
+    card.innerHTML =
+      '<div class="ex-head"><span class="ex-badge t">'+ex.tema.toUpperCase()+'</span>'+
+        '<div><div class="ex-title">'+ex.title+'</div><div class="ex-meta">'+ex.meta+'</div></div></div>'+
+      '<div class="ex-body"><div class="ex-statement">'+ex.statement+'</div>'+
+        interactiveHtml+
+        '<button class="btn-solve">Ver solución paso a paso</button>'+
+        '<div class="solution">'+stepsHtml+
+          '<div class="ans-final"><span class="lab">Resultado</span>'+ex.final+'</div>'+
+          (ex.err?'<div class="box warn" style="margin-top:12px"><div class="box-tag">▲ Error típico</div><p>'+ex.err+'</p></div>':'')+
+        '</div>'+
+      '</div>';
+    list.appendChild(card);
+
+    // solve toggle
+    var btn = card.querySelector('.btn-solve');
+    var sol = card.querySelector('.solution');
+    btn.addEventListener('click', function(){
+      sol.classList.toggle('show');
+      btn.textContent = sol.classList.contains('show')?'Ocultar solución':'Ver solución paso a paso';
+      if(sol.classList.contains('show')){ typeset(sol); }
+    });
+
+    // interactive check
+    if(ex.interactive){
+      var checkBtn = card.querySelector('.btn-check');
+      var input = card.querySelector('.numcheck input');
+      var fb = card.querySelector('.feedback');
+      function doCheck(){
+        var raw = input.value.replace(/\./g,'').replace(',', '.').replace(/[^0-9.\-]/g,'');
+        var val = parseFloat(raw);
+        fb.classList.remove('right','wrong');
+        if(isNaN(val)){ fb.textContent='Introduce un número.'; fb.classList.add('show','wrong'); return; }
+        var ans = parseFloat(input.dataset.ans), tol = parseFloat(input.dataset.tol);
+        if(Math.abs(val-ans) <= tol){
+          fb.innerHTML = '✓ ¡Correcto! '+ex.interactive.explain;
+          fb.classList.add('show','right');
+        } else {
+          fb.innerHTML = '✗ No es exacto. '+ex.interactive.explain;
+          fb.classList.add('show','wrong');
+        }
+        typeset(fb);
+      }
+      checkBtn.addEventListener('click', doCheck);
+      input.addEventListener('keydown', function(e){ if(e.key==='Enter'){ doCheck(); } });
+    }
+  });
+  typeset(list);
+}
+document.querySelectorAll('#ex-filter .deck-tab').forEach(function(t){
+  t.addEventListener('click', function(){
+    document.querySelectorAll('#ex-filter .deck-tab').forEach(function(x){ x.classList.remove('active'); });
+    t.classList.add('active');
+    renderExercises(t.dataset.exfilter);
+  });
+});
+
+/* ---------- FLASHCARDS ---------- */
+var fcState = { deck:'all', idx:0, cards:[] };
+function fcBuildDecks(){
+  var decks = document.getElementById('fc-decks');
+  var temas = ['all','t3','t4'];
+  decks.innerHTML = '';
+  temas.forEach(function(t){
+    var b = document.createElement('button');
+    b.className = 'deck-tab'+(t==='all'?' active':'');
+    b.textContent = (t==='all')?'Todas':t.toUpperCase();
+    b.dataset.deck = t;
+    b.addEventListener('click', function(){
+      document.querySelectorAll('#fc-decks .deck-tab').forEach(function(x){ x.classList.remove('active'); });
+      b.classList.add('active');
+      fcLoad(t);
+    });
+    decks.appendChild(b);
+  });
+}
+function fcLoad(deck){
+  fcState.deck = deck;
+  fcState.cards = FLASHCARDS.filter(function(c){ return deck==='all'||c.tema===deck; });
+  fcState.idx = 0;
+  fcShow();
+}
+function fcShow(){
+  var card = document.getElementById('flashcard');
+  card.classList.remove('flipped');
+  var c = fcState.cards[fcState.idx];
+  if(!c){ return; }
+  document.getElementById('fc-kind-f').textContent = TEMA_LABEL[c.tema]||'Pregunta';
+  document.getElementById('fc-kind-b').textContent = 'Respuesta';
+  document.getElementById('fc-q').innerHTML = c.q;
+  document.getElementById('fc-a').innerHTML = c.a;
+  document.getElementById('fc-count').textContent = (fcState.idx+1)+' / '+fcState.cards.length;
+  typeset(card);
+}
+document.getElementById('flashcard').addEventListener('click', function(){ this.classList.toggle('flipped'); });
+document.getElementById('fc-next').addEventListener('click', function(){
+  if(fcState.cards.length){ fcState.idx = (fcState.idx+1)%fcState.cards.length; fcShow(); }
+});
+document.getElementById('fc-prev').addEventListener('click', function(){
+  if(fcState.cards.length){ fcState.idx = (fcState.idx-1+fcState.cards.length)%fcState.cards.length; fcShow(); }
+});
+
+/* ---------- GLOSARIO ---------- */
+function renderGlossary(q){
+  q = (q||'').trim().toLowerCase();
+  var list = document.getElementById('gloss-list');
+  var items = GLOSSARY.filter(function(g){
+    return !q || g.t.toLowerCase().indexOf(q)>=0 || g.d.toLowerCase().indexOf(q)>=0 || g.tema.toLowerCase().indexOf(q)>=0;
+  });
+  items.sort(function(a,b){ return a.t.localeCompare(b.t,'es'); });
+  list.innerHTML = items.map(function(g){
+    return '<div class="gloss-item"><div class="gloss-term">'+g.t+' <span class="gloss-tema">'+g.tema+'</span></div><div class="gloss-def">'+g.d+'</div></div>';
+  }).join('');
+  document.getElementById('gloss-count').textContent = items.length+' término'+(items.length===1?'':'s');
+  typeset(list);
+}
+document.getElementById('gloss-search').addEventListener('input', function(){ renderGlossary(this.value); });
+
+/* ---------- QUIZ ---------- */
+var quiz = { items:[], idx:0, score:0, answered:false, results:[] };
+
+document.querySelectorAll('#quiz-temas .chip').forEach(function(c){
+  c.addEventListener('click', function(){ c.classList.toggle('on'); updateAvail(); });
+});
+document.querySelectorAll('#quiz-dif .chip').forEach(function(c){
+  c.addEventListener('click', function(){ c.classList.toggle('on'); updateAvail(); });
+});
+function getSelTemas(){ return Array.prototype.slice.call(document.querySelectorAll('#quiz-temas .chip.on')).map(function(c){ return c.dataset.tema; }); }
+function getSelDifs(){ return Array.prototype.slice.call(document.querySelectorAll('#quiz-dif .chip.on')).map(function(c){ return c.dataset.dif; }); }
+function pool(){
+  var temas = getSelTemas(), difs = getSelDifs();
+  return QUIZBANK.filter(function(q){ return temas.indexOf(q.tema)>=0 && difs.indexOf(q.dif)>=0; });
+}
+function updateAvail(){
+  var n = pool().length;
+  var el = document.getElementById('quiz-avail');
+  el.textContent = 'Preguntas disponibles con tu selección: '+n;
+  var input = document.getElementById('quiz-n');
+  if(parseInt(input.value,10) > n){ input.value = n; }
+}
+function shuffle(arr){
+  for(var i=arr.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=arr[i]; arr[i]=arr[j]; arr[j]=t; }
+  return arr;
+}
+document.getElementById('quiz-start').addEventListener('click', function(){
+  var p = pool();
+  if(p.length===0){ document.getElementById('quiz-avail').textContent='No hay preguntas con esa combinación. Activa más temas o dificultades.'; return; }
+  var n = Math.min(parseInt(document.getElementById('quiz-n').value,10)||p.length, p.length);
+  var rand = document.getElementById('quiz-rand').checked;
+  var items = p.slice();
+  if(rand){ shuffle(items); }
+  items = items.slice(0, n);
+  quiz = { items:items, idx:0, score:0, answered:false, results:[] };
+  document.getElementById('quiz-setup').style.display='none';
+  document.getElementById('quiz-done').style.display='none';
+  document.getElementById('quiz-run').style.display='block';
+  renderQuestion();
+});
+function renderQuestion(){
+  quiz.answered = false;
+  var q = quiz.items[quiz.idx];
+  document.getElementById('quiz-counter').textContent = (quiz.idx+1)+' / '+quiz.items.length;
+  document.getElementById('quiz-fill').style.width = ((quiz.idx)/quiz.items.length*100)+'%';
+  document.getElementById('quiz-meta').innerHTML =
+    '<span class="q-pill tema">'+TEMA_LABEL[q.tema]+'</span><span class="q-pill '+q.dif+'">'+q.dif+'</span>';
+  document.getElementById('quiz-qtext').innerHTML = q.q;
+  var opts = document.getElementById('quiz-options');
+  opts.innerHTML = '';
+  var keys = ['A','B','C','D','E'];
+  // randomize option order but track correct
+  var order = q.options.map(function(o,i){ return i; });
+  shuffle(order);
+  order.forEach(function(origIdx, pos){
+    var div = document.createElement('div');
+    div.className = 'option';
+    div.innerHTML = '<span class="opt-key">'+keys[pos]+'</span><span>'+q.options[origIdx]+'</span>';
+    div.dataset.orig = origIdx;
+    div.addEventListener('click', function(){ selectOption(div, q); });
+    opts.appendChild(div);
+  });
+  var exp = document.getElementById('quiz-explain');
+  exp.classList.remove('show','ok','no');
+  document.getElementById('quiz-next').disabled = true;
+  document.getElementById('quiz-next').textContent = (quiz.idx===quiz.items.length-1)?'Ver resultados →':'Siguiente →';
+  typeset(document.getElementById('quiz-run'));
+}
+function selectOption(div, q){
+  if(quiz.answered){ return; }
+  quiz.answered = true;
+  var chosen = parseInt(div.dataset.orig,10);
+  var correct = (chosen === q.correct);
+  if(correct){ quiz.score++; }
+  quiz.results.push({q:q, chosen:chosen, correct:correct});
+  // mark all options
+  document.querySelectorAll('#quiz-options .option').forEach(function(o){
+    o.classList.add('disabled');
+    var oi = parseInt(o.dataset.orig,10);
+    if(oi===q.correct){ o.classList.add('correct'); }
+    else if(o===div){ o.classList.add('wrong'); }
+    else { o.classList.add('dim'); }
+  });
+  var exp = document.getElementById('quiz-explain');
+  exp.classList.add('show', correct?'ok':'no');
+  document.getElementById('quiz-explain-tag').textContent = correct?'✓ Correcto':'✗ Incorrecto';
+  document.getElementById('quiz-explain-text').innerHTML = q.explain;
+  var tbtn = document.getElementById('quiz-theory-btn');
+  tbtn.onclick = function(){ goView(q.tv, q.ta); };
+  document.getElementById('quiz-next').disabled = false;
+  typeset(exp);
+}
+document.getElementById('quiz-next').addEventListener('click', function(){
+  if(!quiz.answered){ return; }
+  if(quiz.idx < quiz.items.length-1){ quiz.idx++; renderQuestion(); }
+  else { showResults(); }
+});
+document.getElementById('quiz-abort').addEventListener('click', function(){
+  document.getElementById('quiz-run').style.display='none';
+  document.getElementById('quiz-setup').style.display='block';
+  updateAvail();
+});
+function showResults(){
+  document.getElementById('quiz-run').style.display='none';
+  document.getElementById('quiz-done').style.display='block';
+  var total = quiz.items.length, score = quiz.score;
+  var pct = Math.round(score/total*100);
+  document.getElementById('quiz-score').textContent = score+' / '+total;
+  var msg;
+  if(pct>=90){ msg='Excelente — dominas la materia.'; }
+  else if(pct>=70){ msg='Muy bien, repasa los fallos y a por el examen.'; }
+  else if(pct>=50){ msg='Vas por buen camino; refuerza los temas flojos.'; }
+  else { msg='Toca repasar la teoría. Usa el botón de cada fallo para ir a ella.'; }
+  document.getElementById('quiz-score-sub').textContent = pct+'% de aciertos · '+msg;
+  // breakdown
+  var bd = document.getElementById('quiz-breakdown');
+  bd.innerHTML = '<h3 class="sec">Revisión de tus respuestas</h3>';
+  quiz.results.forEach(function(r, i){
+    var q = r.q;
+    var item = document.createElement('div');
+    item.className = 'exercise';
+    item.innerHTML =
+      '<div class="ex-head"><span class="ex-badge t" style="background:'+(r.correct?'var(--ok)':'var(--crimson)')+'">'+(r.correct?'✓':'✗')+'</span>'+
+        '<div><div class="ex-title">'+(i+1)+'. '+q.q+'</div><div class="ex-meta">'+TEMA_LABEL[q.tema]+' · '+q.dif+'</div></div></div>'+
+      '<div class="ex-body">'+
+        '<p style="font-size:14px;color:var(--ink-soft)"><strong>Respuesta correcta:</strong> '+q.options[q.correct]+'</p>'+
+        (r.correct?'':'<p style="font-size:14px;color:var(--crimson)"><strong>Tu respuesta:</strong> '+q.options[r.chosen]+'</p>')+
+        '<p style="font-size:14px;color:var(--ink-soft);margin-top:8px">'+q.explain+'</p>'+
+        '<button class="btn-theory" style="margin-top:10px" data-tv="'+q.tv+'" data-ta="'+q.ta+'">▸ Consultar teoría</button>'+
+      '</div>';
+    bd.appendChild(item);
+  });
+  bd.querySelectorAll('.btn-theory').forEach(function(b){
+    b.addEventListener('click', function(){ goView(b.dataset.tv, b.dataset.ta); });
+  });
+  typeset(bd);
+  window.scrollTo({top:0});
+}
+document.getElementById('quiz-restart').addEventListener('click', function(){
+  document.getElementById('quiz-done').style.display='none';
+  document.getElementById('quiz-setup').style.display='block';
+  updateAvail();
+});
+
+/* ---------- EJERCICIOS INCRUSTADOS EN LA TEORÍA ---------- */
+function wireStaticSolves(){
+  document.querySelectorAll('.exercise .btn-solve').forEach(function(btn){
+    if(btn.closest('#ex-list')) return;       // los de la pestaña Ejercicios ya están cableados
+    if(btn.dataset.wired) return;
+    btn.dataset.wired = '1';
+    var sol = btn.parentElement.querySelector('.solution');
+    if(!sol) return;
+    btn.addEventListener('click', function(){
+      sol.classList.toggle('show');
+      btn.textContent = sol.classList.contains('show') ? 'Ocultar solución' : 'Ver solución paso a paso';
+      if(sol.classList.contains('show')){ typeset(sol); }
+    });
+  });
+}
+
+/* ---------- INIT ---------- */
+renderExercises('all');
+fcBuildDecks();
+fcLoad('all');
+renderGlossary('');
+updateAvail();
+wireStaticSolves();
+
+</script>
+</body>
+</html>
